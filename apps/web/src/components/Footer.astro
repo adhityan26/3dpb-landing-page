@@ -1,0 +1,51 @@
+---
+import type { Locale } from '~/lib/i18n'
+import { t, pickLocalized } from '~/lib/i18n'
+import type { SiteSettings } from '~/lib/types'
+
+interface Props {
+  locale: Locale
+  settings: SiteSettings | null
+}
+const { locale, settings } = Astro.props
+const year = new Date().getFullYear()
+const contact = settings?.contact
+const waHref = contact ? `https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}` : '#'
+const igHref = contact ? `https://instagram.com/${contact.instagram.replace(/^@/, '')}` : '#'
+const address = pickLocalized(contact?.address, locale) as string
+const hours = pickLocalized(contact?.operatingHours, locale) as string
+---
+<footer id="contact" class="border-t border-[color:var(--color-ink-100)] bg-white py-12">
+  <div class="mx-auto grid max-w-6xl gap-8 px-4 md:grid-cols-3">
+    <div>
+      <img src="/assets/logo.svg" alt="3dprintingbandung" class="h-8 w-auto" />
+      <p class="mt-3 text-sm text-[color:var(--color-ink-500)]">{settings?.brandName}</p>
+    </div>
+    <div class="text-sm">
+      <h3 class="mb-2 font-display font-semibold">{t(locale, 'nav.contact')}</h3>
+      <ul class="space-y-1 text-[color:var(--color-ink-500)]">
+        {contact?.whatsapp && (
+          <li><a href={waHref} target="_blank" rel="noopener" class="hover:text-[color:var(--color-brand-600)]">WhatsApp: {contact.whatsapp}</a></li>
+        )}
+        {contact?.instagram && (
+          <li><a href={igHref} target="_blank" rel="noopener" class="hover:text-[color:var(--color-brand-600)]">Instagram: @{contact.instagram}</a></li>
+        )}
+        {contact?.email && <li>Email: {contact.email}</li>}
+        {address && <li>{address}</li>}
+        {hours && <li>{hours}</li>}
+      </ul>
+    </div>
+    <div class="text-sm">
+      <h3 class="mb-2 font-display font-semibold">Menu</h3>
+      <ul class="space-y-1 text-[color:var(--color-ink-500)]">
+        <li><a href="#products" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.products')}</a></li>
+        <li><a href="#generator" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.generator')}</a></li>
+        <li><a href="#gallery" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.gallery')}</a></li>
+        <li><a href="#marketplace" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'marketplace.title')}</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="mx-auto mt-10 max-w-6xl px-4 text-center text-xs text-[color:var(--color-ink-500)]">
+    &copy; {year} {settings?.brandName ?? '3dprintingbandung'}. {t(locale, 'footer.rights')}
+  </div>
+</footer>
