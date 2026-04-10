@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "products": "Products",
+    "generator": "Generator",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "whatsapp": "WhatsApp"
+  },
+  "hero": {
+    "cta_marketplace": "Shop on Marketplaces",
+    "cta_generator": "See Silhouette Generator"
+  },
+  "pillars": {
+    "title": "What We Offer",
+    "ready": {
+      "title": "Ready-to-Ship Products",
+      "body": "Keychains, fidgets, and small toys ready to ship from your favorite marketplaces."
+    },
+    "generator": {
+      "title": "Silhouette Art Generator",
+      "body": "Create personalized silhouette art in our app and print it as a custom 3D product."
+    },
+    "custom": {
+      "title": "Custom & 3D Print Service",
+      "body": "Bring your file or your idea — we'll turn it into a high-quality 3D print."
+    }
+  },
+  "generator": {
+    "badge": "Coming Soon",
+    "estimated_launch": "Estimated launch",
+    "form": {
+      "title": "Join the waitlist",
+      "subtitle": "We'll let you know at launch.",
+      "email_label": "Email",
+      "email_placeholder": "you@email.com",
+      "name_label": "Name (optional)",
+      "name_placeholder": "Your name",
+      "submit": "Join",
+      "submitting": "Joining…",
+      "success": "Thanks! We'll let you know at launch.",
+      "error_invalid_email": "Invalid email.",
+      "error_generic": "Couldn't sign you up, please try again."
+    }
+  },
+  "products": {
+    "title": "Featured Products",
+    "filter_all": "All",
+    "categories": {
+      "keychain": "Keychain",
+      "fidget": "Fidget",
+      "toy": "Toy",
+      "cosplay": "Cosplay",
+      "other": "Other"
+    },
+    "empty": "No featured products yet."
+  },
+  "gallery": {
+    "title": "Gallery & Portfolio",
+    "filter_all": "All",
+    "categories": {
+      "custom": "Custom",
+      "cosplay": "Cosplay",
+      "print-service": "Print Service",
+      "showcase": "Showcase"
+    }
+  },
+  "marketplace": {
+    "title": "Shop on Marketplaces",
+    "subtitle": "Pick your favorite platform."
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}

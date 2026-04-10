@@ -1,0 +1,74 @@
+{
+  "nav": {
+    "products": "Produk",
+    "generator": "Generator",
+    "gallery": "Galeri",
+    "contact": "Kontak",
+    "whatsapp": "WhatsApp"
+  },
+  "hero": {
+    "cta_marketplace": "Belanja di Marketplace",
+    "cta_generator": "Lihat Silhouette Generator"
+  },
+  "pillars": {
+    "title": "Apa yang Kami Tawarkan",
+    "ready": {
+      "title": "Produk Siap Kirim",
+      "body": "Keychain, fidget, dan mainan kecil siap dikirim dari marketplace favorit kamu."
+    },
+    "generator": {
+      "title": "Silhouette Art Generator",
+      "body": "Bikin art silhouette personal lewat app kami, cetak langsung sebagai produk 3D."
+    },
+    "custom": {
+      "title": "Jasa Custom & 3D Print",
+      "body": "Bawa file atau ide kamu, kami bantu wujudkan jadi cetakan 3D berkualitas."
+    }
+  },
+  "generator": {
+    "badge": "Coming Soon",
+    "estimated_launch": "Perkiraan rilis",
+    "form": {
+      "title": "Daftar waitlist",
+      "subtitle": "Kami kabari saat launching.",
+      "email_label": "Email",
+      "email_placeholder": "kamu@email.com",
+      "name_label": "Nama (opsional)",
+      "name_placeholder": "Nama kamu",
+      "submit": "Daftar",
+      "submitting": "Mendaftar…",
+      "success": "Terima kasih! Kami akan kabari kamu saat launch.",
+      "error_invalid_email": "Email tidak valid.",
+      "error_generic": "Gagal mendaftar, coba lagi sebentar."
+    }
+  },
+  "products": {
+    "title": "Produk Unggulan",
+    "filter_all": "Semua",
+    "categories": {
+      "keychain": "Keychain",
+      "fidget": "Fidget",
+      "toy": "Mainan",
+      "cosplay": "Cosplay",
+      "other": "Lainnya"
+    },
+    "empty": "Belum ada produk unggulan."
+  },
+  "gallery": {
+    "title": "Galeri & Portfolio",
+    "filter_all": "Semua",
+    "categories": {
+      "custom": "Custom",
+      "cosplay": "Cosplay",
+      "print-service": "Jasa Print",
+      "showcase": "Showcase"
+    }
+  },
+  "marketplace": {
+    "title": "Belanja di Marketplace",
+    "subtitle": "Pilih platform favoritmu."
+  },
+  "footer": {
+    "rights": "Hak cipta dilindungi."
+  }
+}
