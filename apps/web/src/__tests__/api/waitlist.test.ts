@@ -7,7 +7,7 @@ vi.mock('@sanity/client', () => ({
   })),
 }))
 
-import { POST } from './waitlist'
+import { POST } from '~/pages/api/waitlist'
 
 function makeRequest(body: unknown): Request {
   return new Request('https://test.local/api/waitlist', {

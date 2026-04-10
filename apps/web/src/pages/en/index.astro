@@ -1,10 +1,21 @@
 ---
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import Navbar from '~/components/Navbar.astro'
+import Hero from '~/components/Hero.astro'
+import Pillars from '~/components/Pillars.astro'
+import { clientFromEnv, queries } from '~/lib/sanity'
+import { pickLocalized } from '~/lib/i18n'
+import type { SiteSettings } from '~/lib/types'
+
+const client = clientFromEnv()
+const settings = await client.fetch<SiteSettings | null>(queries.siteSettings)
+const title = pickLocalized(settings?.seo?.defaultTitle, 'en') || '3dprintingbandung'
+const description = pickLocalized(settings?.seo?.defaultDescription, 'en') || 'A 3D printing studio in Bandung.'
 ---
-<BaseLayout locale="en" title="3dprintingbandung" description="A 3D printing studio in Bandung.">
-  <Navbar locale="en" />
-  <main class="mx-auto max-w-6xl px-4 py-10">
-    <h1 class="text-3xl font-display">Hello, 3dprintingbandung (EN)</h1>
+<BaseLayout locale="en" title={title} description={description}>
+  <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} />
+  <main>
+    <Hero locale="en" brandName={settings?.brandName ?? '3dprintingbandung'} tagline={settings?.tagline ?? []} />
+    <Pillars locale="en" />
   </main>
 </BaseLayout>
