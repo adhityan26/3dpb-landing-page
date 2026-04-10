@@ -1,0 +1,64 @@
+---
+import type { Locale } from '~/lib/i18n'
+import { otherLocale } from '~/lib/i18n'
+
+interface Props {
+  locale: Locale
+}
+const { locale } = Astro.props
+const other = otherLocale(locale)
+const otherFlag = other === 'id' ? '🇮🇩' : '🇬🇧'
+const currentFlag = locale === 'id' ? '🇮🇩' : '🇬🇧'
+const currentLabel = locale === 'id' ? 'Bahasa Indonesia' : 'English'
+const otherLabel = other === 'id' ? 'Bahasa Indonesia' : 'English'
+---
+<div class="relative inline-block group">
+  <button
+    type="button"
+    class="flex items-center gap-1 rounded-full border border-[color:var(--color-ink-300)] px-3 py-1.5 text-sm hover:bg-[color:var(--color-ink-100)]"
+    aria-haspopup="menu"
+    aria-expanded="false"
+    id="lang-menu-button"
+  >
+    <span aria-hidden="true">{currentFlag}</span>
+    <span class="sr-only">{currentLabel}</span>
+    <span class="uppercase">{locale}</span>
+    <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4l3 4 3-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" /></svg>
+  </button>
+  <div
+    role="menu"
+    aria-labelledby="lang-menu-button"
+    class="absolute right-0 mt-1 hidden min-w-[11rem] rounded-xl border border-[color:var(--color-ink-300)] bg-white p-1 shadow-lg group-focus-within:block group-hover:block"
+  >
+    <a
+      role="menuitem"
+      href={`/${other}/`}
+      class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-[color:var(--color-ink-100)]"
+      data-locale-link={other}
+    >
+      <span aria-hidden="true">{otherFlag}</span>
+      <span>{otherLabel}</span>
+    </a>
+  </div>
+</div>
+
+<script>
+  const links = document.querySelectorAll<HTMLAnchorElement>('a[data-locale-link]')
+  links.forEach((link) => {
+    link.addEventListener('click', () => {
+      const locale = link.getAttribute('data-locale-link')
+      if (locale) localStorage.setItem('preferred-locale', locale)
+    })
+  })
+
+  const path = window.location.pathname
+  const stored = localStorage.getItem('preferred-locale')
+  if (stored && (stored === 'id' || stored === 'en')) {
+    if (path === '/' || path === '/id/' || path === '/en/') {
+      const expected = `/${stored}/`
+      if (path !== expected) {
+        window.location.replace(expected + window.location.hash)
+      }
+    }
+  }
+</script>

@@ -1,0 +1,39 @@
+---
+import type { Locale } from '~/lib/i18n'
+import { t, localizedHref } from '~/lib/i18n'
+import LanguageSwitcher from './LanguageSwitcher.astro'
+
+interface Props {
+  locale: Locale
+  whatsappNumber?: string
+}
+
+const { locale, whatsappNumber } = Astro.props
+const waHref = whatsappNumber
+  ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}`
+  : 'https://wa.me/'
+---
+<header class="sticky top-0 z-40 border-b border-[color:var(--color-ink-100)] bg-white/90 backdrop-blur">
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <a href={localizedHref(locale, '/')} class="flex items-center gap-2">
+      <img src="/assets/logo.svg" alt="3dprintingbandung" class="h-8 w-auto" />
+    </a>
+    <ul class="hidden items-center gap-6 text-sm md:flex">
+      <li><a href="#products" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.products')}</a></li>
+      <li><a href="#generator" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.generator')}</a></li>
+      <li><a href="#gallery" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.gallery')}</a></li>
+      <li><a href="#contact" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.contact')}</a></li>
+    </ul>
+    <div class="flex items-center gap-2">
+      <LanguageSwitcher locale={locale} />
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        class="hidden rounded-full bg-[color:var(--color-brand-500)] px-4 py-1.5 text-sm font-medium text-white hover:bg-[color:var(--color-brand-600)] md:inline-flex"
+      >
+        {t(locale, 'nav.whatsapp')}
+      </a>
+    </div>
+  </nav>
+</header>
