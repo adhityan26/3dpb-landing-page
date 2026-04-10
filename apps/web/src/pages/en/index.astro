@@ -5,15 +5,17 @@ import Hero from '~/components/Hero.astro'
 import Pillars from '~/components/Pillars.astro'
 import GeneratorComingSoon from '~/components/GeneratorComingSoon.astro'
 import ProductGrid from '~/components/ProductGrid.astro'
+import Gallery from '~/components/Gallery.astro'
 import { clientFromEnv, queries } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
-import type { SiteSettings, SilhouetteGenerator, Product } from '~/lib/types'
+import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem } from '~/lib/types'
 
 const client = clientFromEnv()
-const [settings, generator, products] = await Promise.all([
+const [settings, generator, products, gallery] = await Promise.all([
   client.fetch<SiteSettings | null>(queries.siteSettings),
   client.fetch<SilhouetteGenerator | null>(queries.silhouetteGenerator),
   client.fetch<Product[]>(queries.featuredProducts),
+  client.fetch<GalleryItem[]>(queries.galleryItems),
 ])
 const title = pickLocalized(settings?.seo?.defaultTitle, 'en') || '3dprintingbandung'
 const description = pickLocalized(settings?.seo?.defaultDescription, 'en') || 'A 3D printing studio in Bandung.'
@@ -25,5 +27,6 @@ const description = pickLocalized(settings?.seo?.defaultDescription, 'en') || 'A
     <Pillars locale="en" />
     <GeneratorComingSoon locale="en" data={generator} />
     <ProductGrid locale="en" products={products} />
+    <Gallery locale="en" items={gallery} />
   </main>
 </BaseLayout>
