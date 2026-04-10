@@ -6,6 +6,8 @@ import Pillars from '~/components/Pillars.astro'
 import GeneratorComingSoon from '~/components/GeneratorComingSoon.astro'
 import ProductGrid from '~/components/ProductGrid.astro'
 import Gallery from '~/components/Gallery.astro'
+import MarketplaceCTA from '~/components/MarketplaceCTA.astro'
+import Footer from '~/components/Footer.astro'
 import { clientFromEnv, queries } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
 import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem } from '~/lib/types'
@@ -28,5 +30,7 @@ const description = pickLocalized(settings?.seo?.defaultDescription, 'id') || 'S
     <GeneratorComingSoon locale="id" data={generator} />
     <ProductGrid locale="id" products={products} />
     <Gallery locale="id" items={gallery} />
+    <MarketplaceCTA locale="id" links={settings?.marketplaceLinks ?? {}} />
   </main>
+  <Footer locale="id" settings={settings} />
 </BaseLayout>
