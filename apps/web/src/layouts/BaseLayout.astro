@@ -32,6 +32,20 @@ const cfAnalyticsToken = import.meta.env.PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN
     <link rel="alternate" hreflang="en" href={`${siteUrl}/en/`} />
     <link rel="alternate" hreflang="x-default" href={`${siteUrl}/id/`} />
 
+    <script type="application/ld+json" is:inline set:html={JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'LocalBusiness',
+      '@id': siteUrl,
+      name: '3dprintingbandung',
+      url: siteUrl,
+      areaServed: 'Bandung, Indonesia',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Bandung',
+        addressCountry: 'ID',
+      },
+    })} />
+
     <slot name="head" />
   </head>
   <body class="bg-white text-[color:var(--color-ink-900)]">
