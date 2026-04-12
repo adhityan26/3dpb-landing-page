@@ -4,12 +4,15 @@ import { t, pickLocalized } from '~/lib/i18n'
 import { clientFromEnv, urlFor } from '~/lib/sanity'
 import type { Product } from '~/lib/types'
 import ProductCard from './ProductCard.tsx'
+import type { LocalizedField } from '~/lib/types'
 
 interface Props {
   locale: Locale
   products: Product[]
+  titleOverride?: LocalizedField
 }
-const { locale, products } = Astro.props
+const { locale, products, titleOverride } = Astro.props
+const title = (titleOverride && pickLocalized(titleOverride, locale)) || t(locale, 'products.title')
 const client = clientFromEnv()
 
 const categoriesUsed = Array.from(new Set(products.map((p) => p.category)))
@@ -21,7 +24,7 @@ const cards = products.map((p) => ({
     category: t(locale, `products.categories.${p.category}`),
     shortDescription: (pickLocalized(p.shortDescription, locale) || '') as string,
     photos: p.photos.map((ph, i) => ({
-      src: urlFor(client, ph).width(800).format('webp').url(),
+      src: urlFor(client, ph).width(800).height(800).fit('crop').format('webp').url(),
       alt: ph.alt ?? `${pickLocalized(p.title, locale)} ${i + 1}`,
     })),
     marketplaceLinks: p.marketplaceLinks,
@@ -30,7 +33,7 @@ const cards = products.map((p) => ({
 ---
 <section id="products" class="mx-auto max-w-6xl px-4 py-20">
   <h2 class="mb-10 text-center text-3xl font-display font-bold md:text-4xl">
-    {t(locale, 'products.title')}
+    {title}
   </h2>
 
   {products.length === 0 ? (

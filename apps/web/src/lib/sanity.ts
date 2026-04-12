@@ -29,6 +29,8 @@ export const queries = {
     brandName,
     tagline,
     logo{..., "alt": alt},
+    sections,
+    pillars[]{_key, icon, title, body},
     contact{
       whatsapp,
       instagram,

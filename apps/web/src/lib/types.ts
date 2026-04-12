@@ -17,10 +17,28 @@ export interface MarketplaceLinks {
   tiktokShop?: string
 }
 
+export interface Pillar {
+  _key?: string
+  icon: string
+  title: LocalizedField
+  body: LocalizedField
+}
+
+export interface SectionCopy {
+  heroCtaMarketplace?: LocalizedField
+  heroCtaGenerator?: LocalizedField
+  productsTitle?: LocalizedField
+  galleryTitle?: LocalizedField
+  marketplaceTitle?: LocalizedField
+  marketplaceSubtitle?: LocalizedField
+}
+
 export interface SiteSettings {
   brandName: string
   tagline: LocalizedField
   logo?: SanityImageRef
+  sections?: SectionCopy
+  pillars?: Pillar[]
   contact: {
     whatsapp: string
     instagram: string

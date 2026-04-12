@@ -1,4 +1,6 @@
 ---
+export const prerender = false
+
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import Navbar from '~/components/Navbar.astro'
 import Hero from '~/components/Hero.astro'
@@ -8,7 +10,7 @@ import ProductGrid from '~/components/ProductGrid.astro'
 import Gallery from '~/components/Gallery.astro'
 import MarketplaceCTA from '~/components/MarketplaceCTA.astro'
 import Footer from '~/components/Footer.astro'
-import { clientFromEnv, queries } from '~/lib/sanity'
+import { clientFromEnv, queries, urlFor } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
 import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem } from '~/lib/types'
 
@@ -21,16 +23,32 @@ const [settings, generator, products, gallery] = await Promise.all([
 ])
 const title = pickLocalized(settings?.seo?.defaultTitle, 'en') || '3dprintingbandung'
 const description = pickLocalized(settings?.seo?.defaultDescription, 'en') || 'A 3D printing studio in Bandung.'
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const logoAlt = settings?.logo?.alt
+const ogImageUrl = settings?.seo?.ogImage
+  ? urlFor(client, settings.seo.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
+  : undefined
 ---
-<BaseLayout locale="en" title={title} description={description}>
-  <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} />
+<BaseLayout locale="en" title={title} description={description} ogImageUrl={ogImageUrl}>
+  <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main>
-    <Hero locale="en" brandName={settings?.brandName ?? '3dprintingbandung'} tagline={settings?.tagline ?? []} />
-    <Pillars locale="en" />
+    <Hero
+      locale="en"
+      brandName={settings?.brandName ?? '3dprintingbandung'}
+      tagline={settings?.tagline ?? []}
+      ctaMarketplaceLabel={settings?.sections?.heroCtaMarketplace}
+      ctaGeneratorLabel={settings?.sections?.heroCtaGenerator}
+    />
+    <Pillars locale="en" pillars={settings?.pillars} />
     <GeneratorComingSoon locale="en" data={generator} />
-    <ProductGrid locale="en" products={products} />
-    <Gallery locale="en" items={gallery} />
-    <MarketplaceCTA locale="en" links={settings?.marketplaceLinks ?? {}} />
+    <ProductGrid locale="en" products={products} titleOverride={settings?.sections?.productsTitle} />
+    <Gallery locale="en" items={gallery} titleOverride={settings?.sections?.galleryTitle} />
+    <MarketplaceCTA
+      locale="en"
+      links={settings?.marketplaceLinks ?? {}}
+      titleOverride={settings?.sections?.marketplaceTitle}
+      subtitleOverride={settings?.sections?.marketplaceSubtitle}
+    />
   </main>
-  <Footer locale="en" settings={settings} />
+  <Footer locale="en" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
 </BaseLayout>

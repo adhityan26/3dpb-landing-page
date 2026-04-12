@@ -50,6 +50,82 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'sections',
+      title: 'Section Copy',
+      description: 'Headings, subtitles, and CTA labels for landing sections.',
+      type: 'object',
+      options: { collapsible: true, collapsed: false },
+      fields: [
+        defineField({
+          name: 'heroCtaMarketplace',
+          title: 'Hero — Marketplace button label',
+          type: 'internationalizedArrayString',
+        }),
+        defineField({
+          name: 'heroCtaGenerator',
+          title: 'Hero — Generator button label',
+          type: 'internationalizedArrayString',
+        }),
+        defineField({
+          name: 'productsTitle',
+          title: 'Products section — heading',
+          type: 'internationalizedArrayString',
+        }),
+        defineField({
+          name: 'galleryTitle',
+          title: 'Gallery section — heading',
+          type: 'internationalizedArrayString',
+        }),
+        defineField({
+          name: 'marketplaceTitle',
+          title: 'Marketplace section — heading',
+          type: 'internationalizedArrayString',
+        }),
+        defineField({
+          name: 'marketplaceSubtitle',
+          title: 'Marketplace section — subtitle',
+          type: 'internationalizedArrayString',
+        }),
+      ],
+    }),
+    defineField({
+      name: 'pillars',
+      title: 'What We Offer (Pillars)',
+      type: 'array',
+      description: 'Cards shown on the landing under "Apa yang Kami Tawarkan". Drag to reorder.',
+      of: [
+        {
+          type: 'object',
+          name: 'pillar',
+          fields: [
+            defineField({
+              name: 'icon',
+              type: 'string',
+              description: 'Emoji, e.g. 📦 🎨 🛠️ 🎭',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'title',
+              type: 'internationalizedArrayString',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'body',
+              type: 'internationalizedArrayText',
+              validation: (Rule) => Rule.required(),
+            }),
+          ],
+          preview: {
+            select: { icon: 'icon', title: 'title.0.value', subtitle: 'body.0.value' },
+            prepare: ({ icon, title, subtitle }) => ({
+              title: `${icon ?? '•'} ${title ?? '(untitled)'}`,
+              subtitle,
+            }),
+          },
+        },
+      ],
+    }),
+    defineField({
       name: 'marketplaceLinks',
       type: 'object',
       fields: [

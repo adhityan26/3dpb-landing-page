@@ -1,26 +1,32 @@
 ---
 import type { Locale } from '~/lib/i18n'
-import { t } from '~/lib/i18n'
+import { t, pickLocalized } from '~/lib/i18n'
+import type { Pillar } from '~/lib/types'
 
-interface Props { locale: Locale }
-const { locale } = Astro.props
+interface Props {
+  locale: Locale
+  pillars?: Pillar[]
+}
+const { locale, pillars } = Astro.props
 
-const pillars = [
-  { key: 'ready', icon: '📦' },
-  { key: 'generator', icon: '🎨' },
-  { key: 'custom', icon: '🛠️' },
-] as const
+const fallback: Pillar[] = [
+  { icon: '📦', title: [{ _key: 'id', value: 'Produk Siap Kirim' }, { _key: 'en', value: 'Ready-to-ship Products' }], body: [{ _key: 'id', value: 'Keychain, fidget, dan mainan kecil siap dikirim dari marketplace favorit kamu.' }, { _key: 'en', value: 'Keychains, fidgets and small toys ready to ship from your favorite marketplace.' }] },
+  { icon: '🎨', title: [{ _key: 'id', value: 'Silhouette Art Generator' }, { _key: 'en', value: 'Silhouette Art Generator' }], body: [{ _key: 'id', value: 'Bikin art silhouette personal lewat app kami, cetak langsung sebagai produk 3D.' }, { _key: 'en', value: 'Create personal silhouette art in our app, printed straight as a 3D product.' }] },
+  { icon: '🛠️', title: [{ _key: 'id', value: 'Jasa Custom & 3D Print' }, { _key: 'en', value: 'Custom & 3D Printing Service' }], body: [{ _key: 'id', value: 'Bawa file atau ide kamu, kami bantu wujudkan jadi cetakan 3D berkualitas.' }, { _key: 'en', value: 'Bring your file or idea — we help turn it into a quality 3D print.' }] },
+]
+
+const items = pillars && pillars.length > 0 ? pillars : fallback
 ---
 <section class="mx-auto max-w-6xl px-4 py-16">
   <h2 class="mb-10 text-center text-3xl font-display font-bold md:text-4xl">
     {t(locale, 'pillars.title')}
   </h2>
-  <div class="grid gap-6 md:grid-cols-3">
-    {pillars.map(({ key, icon }) => (
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    {items.map((p) => (
       <div class="rounded-2xl border border-[color:var(--color-ink-100)] bg-white p-6 shadow-sm">
-        <div class="mb-3 text-3xl" aria-hidden="true">{icon}</div>
-        <h3 class="mb-2 text-xl font-display font-semibold">{t(locale, `pillars.${key}.title`)}</h3>
-        <p class="text-sm text-[color:var(--color-ink-500)]">{t(locale, `pillars.${key}.body`)}</p>
+        <div class="mb-3 text-3xl" aria-hidden="true">{p.icon}</div>
+        <h3 class="mb-2 text-xl font-display font-semibold">{pickLocalized(p.title, locale)}</h3>
+        <p class="text-sm text-[color:var(--color-ink-500)]">{pickLocalized(p.body, locale)}</p>
       </div>
     ))}
   </div>

@@ -38,7 +38,7 @@ export default function ProductCard({
               <button
                 key={i}
                 type="button"
-                className="relative min-w-full shrink-0"
+                className="relative aspect-square min-w-full shrink-0"
                 onClick={() => setLightboxIndex(i)}
                 aria-label={`Open photo ${i + 1} of ${photos.length}`}
               >
@@ -46,7 +46,7 @@ export default function ProductCard({
                   src={photo.src}
                   alt={photo.alt}
                   loading="lazy"
-                  className="aspect-square w-full object-cover"
+                  className="absolute inset-0 h-full w-full object-cover"
                 />
               </button>
             ))}

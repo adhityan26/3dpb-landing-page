@@ -6,19 +6,23 @@ import type { SiteSettings } from '~/lib/types'
 interface Props {
   locale: Locale
   settings: SiteSettings | null
+  logoUrl?: string
+  logoAlt?: string
 }
-const { locale, settings } = Astro.props
+const { locale, settings, logoUrl, logoAlt } = Astro.props
 const year = new Date().getFullYear()
 const contact = settings?.contact
 const waHref = contact ? `https://wa.me/${contact.whatsapp.replace(/[^0-9]/g, '')}` : '#'
 const igHref = contact ? `https://instagram.com/${contact.instagram.replace(/^@/, '')}` : '#'
 const address = pickLocalized(contact?.address, locale) as string
 const hours = pickLocalized(contact?.operatingHours, locale) as string
+const logoSrc = logoUrl ?? '/assets/logo.svg'
+const logoAltText = logoAlt ?? '3dprintingbandung'
 ---
 <footer id="contact" class="border-t border-[color:var(--color-ink-100)] bg-white py-12">
   <div class="mx-auto grid max-w-6xl gap-8 px-4 md:grid-cols-3">
     <div>
-      <img src="/assets/logo.svg" alt="3dprintingbandung" class="h-8 w-auto" />
+      <img src={logoSrc} alt={logoAltText} class="h-8 w-auto" />
       <p class="mt-3 text-sm text-[color:var(--color-ink-500)]">{settings?.brandName}</p>
     </div>
     <div class="text-sm">

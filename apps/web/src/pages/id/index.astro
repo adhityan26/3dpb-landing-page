@@ -1,4 +1,6 @@
 ---
+export const prerender = false
+
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import Navbar from '~/components/Navbar.astro'
 import Hero from '~/components/Hero.astro'
@@ -8,7 +10,7 @@ import ProductGrid from '~/components/ProductGrid.astro'
 import Gallery from '~/components/Gallery.astro'
 import MarketplaceCTA from '~/components/MarketplaceCTA.astro'
 import Footer from '~/components/Footer.astro'
-import { clientFromEnv, queries } from '~/lib/sanity'
+import { clientFromEnv, queries, urlFor } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
 import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem } from '~/lib/types'
 
@@ -21,16 +23,32 @@ const [settings, generator, products, gallery] = await Promise.all([
 ])
 const title = pickLocalized(settings?.seo?.defaultTitle, 'id') || '3dprintingbandung'
 const description = pickLocalized(settings?.seo?.defaultDescription, 'id') || 'Studio 3D printing di Bandung.'
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const logoAlt = settings?.logo?.alt
+const ogImageUrl = settings?.seo?.ogImage
+  ? urlFor(client, settings.seo.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
+  : undefined
 ---
-<BaseLayout locale="id" title={title} description={description}>
-  <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} />
+<BaseLayout locale="id" title={title} description={description} ogImageUrl={ogImageUrl}>
+  <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main>
-    <Hero locale="id" brandName={settings?.brandName ?? '3dprintingbandung'} tagline={settings?.tagline ?? []} />
-    <Pillars locale="id" />
+    <Hero
+      locale="id"
+      brandName={settings?.brandName ?? '3dprintingbandung'}
+      tagline={settings?.tagline ?? []}
+      ctaMarketplaceLabel={settings?.sections?.heroCtaMarketplace}
+      ctaGeneratorLabel={settings?.sections?.heroCtaGenerator}
+    />
+    <Pillars locale="id" pillars={settings?.pillars} />
     <GeneratorComingSoon locale="id" data={generator} />
-    <ProductGrid locale="id" products={products} />
-    <Gallery locale="id" items={gallery} />
-    <MarketplaceCTA locale="id" links={settings?.marketplaceLinks ?? {}} />
+    <ProductGrid locale="id" products={products} titleOverride={settings?.sections?.productsTitle} />
+    <Gallery locale="id" items={gallery} titleOverride={settings?.sections?.galleryTitle} />
+    <MarketplaceCTA
+      locale="id"
+      links={settings?.marketplaceLinks ?? {}}
+      titleOverride={settings?.sections?.marketplaceTitle}
+      subtitleOverride={settings?.sections?.marketplaceSubtitle}
+    />
   </main>
-  <Footer locale="id" settings={settings} />
+  <Footer locale="id" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
 </BaseLayout>

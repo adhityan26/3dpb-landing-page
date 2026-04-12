@@ -7,9 +7,13 @@ interface Props {
   locale: Locale
   brandName: string
   tagline: LocalizedField
+  ctaMarketplaceLabel?: LocalizedField
+  ctaGeneratorLabel?: LocalizedField
 }
-const { locale, brandName, tagline } = Astro.props
+const { locale, brandName, tagline, ctaMarketplaceLabel, ctaGeneratorLabel } = Astro.props
 const taglineText = pickLocalized(tagline, locale)
+const ctaMarketplace = (ctaMarketplaceLabel && pickLocalized(ctaMarketplaceLabel, locale)) || t(locale, 'hero.cta_marketplace')
+const ctaGenerator = (ctaGeneratorLabel && pickLocalized(ctaGeneratorLabel, locale)) || t(locale, 'hero.cta_generator')
 ---
 <section class="relative overflow-hidden bg-gradient-to-b from-[color:var(--color-brand-50)] to-white">
   <div class="mx-auto max-w-6xl px-4 py-20 md:py-28">
@@ -21,13 +25,13 @@ const taglineText = pickLocalized(tagline, locale)
           href="#marketplace"
           class="rounded-full bg-[color:var(--color-brand-500)] px-6 py-3 text-white font-medium hover:bg-[color:var(--color-brand-600)]"
         >
-          {t(locale, 'hero.cta_marketplace')}
+          {ctaMarketplace}
         </a>
         <a
           href="#generator"
           class="rounded-full border border-[color:var(--color-ink-300)] px-6 py-3 font-medium hover:bg-[color:var(--color-ink-100)]"
         >
-          {t(locale, 'hero.cta_generator')}
+          {ctaGenerator}
         </a>
       </div>
     </div>
