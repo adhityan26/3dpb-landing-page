@@ -1,16 +1,12 @@
 import { defineConfig } from 'astro/config'
-import cloudflare from '@astrojs/cloudflare'
+import node from '@astrojs/node'
 import react from '@astrojs/react'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   site: 'https://3dprintingbandung.my.id',
-  // Astro 5: default is static; routes that `export const prerender = false`
-  // (e.g. /api/waitlist) are built as Cloudflare Pages Functions automatically.
   output: 'static',
-  adapter: cloudflare({
-    imageService: 'compile',
-  }),
+  adapter: node({ mode: 'standalone' }),
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],

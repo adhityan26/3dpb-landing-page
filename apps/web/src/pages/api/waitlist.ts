@@ -13,7 +13,11 @@ interface RequestBody {
 function getEnv(ctx: APIContext, key: string): string | undefined {
   const runtimeEnv = (ctx.locals as { runtime?: { env?: Record<string, string | undefined> } })
     .runtime?.env
-  return runtimeEnv?.[key] ?? (import.meta.env as Record<string, string | undefined>)[key]
+  return (
+    runtimeEnv?.[key] ??
+    (typeof process !== 'undefined' ? process.env[key] : undefined) ??
+    (import.meta.env as Record<string, string | undefined>)[key]
+  )
 }
 
 export async function POST(ctx: APIContext): Promise<Response> {

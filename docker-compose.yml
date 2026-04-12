@@ -1,0 +1,22 @@
+services:
+  web:
+    image: ghcr.io/adhityan26/3dpb-web:latest
+    container_name: 3dpb-web
+    restart: unless-stopped
+    ports:
+      - "4321:4321"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 4321
+      PUBLIC_SANITY_PROJECT_ID: ${PUBLIC_SANITY_PROJECT_ID}
+      PUBLIC_SANITY_DATASET: ${PUBLIC_SANITY_DATASET:-production}
+      PUBLIC_SANITY_API_VERSION: ${PUBLIC_SANITY_API_VERSION:-2024-10-01}
+      SANITY_WRITE_TOKEN: ${SANITY_WRITE_TOKEN}
+
+  studio:
+    image: ghcr.io/adhityan26/3dpb-studio:latest
+    container_name: 3dpb-studio
+    restart: unless-stopped
+    ports:
+      - "3333:80"
