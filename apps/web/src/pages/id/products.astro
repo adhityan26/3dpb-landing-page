@@ -1,0 +1,29 @@
+---
+export const prerender = false
+
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Navbar from '~/components/Navbar.astro'
+import Footer from '~/components/Footer.astro'
+import ProductCatalog from '~/components/ProductCatalog.astro'
+import { clientFromEnv, queries, urlFor } from '~/lib/sanity'
+import { pickLocalized } from '~/lib/i18n'
+import type { SiteSettings, Product } from '~/lib/types'
+
+const client = clientFromEnv()
+const [settings, products] = await Promise.all([
+  client.fetch<SiteSettings | null>(queries.siteSettings),
+  client.fetch<Product[]>(queries.allProducts),
+])
+const title = 'Semua Produk — ' + (pickLocalized(settings?.seo?.defaultTitle, 'id') || '3dprintingbandung')
+const description = 'Lihat semua produk 3D print dari 3dprintingbandung.'
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const logoAlt = settings?.logo?.alt
+---
+<BaseLayout locale="id" title={title} description={description}>
+  <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
+  <main class="mx-auto max-w-6xl px-4 py-12">
+    <h1 class="mb-8 text-3xl font-display font-bold md:text-4xl">Semua Produk</h1>
+    <ProductCatalog locale="id" products={products} />
+  </main>
+  <Footer locale="id" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
+</BaseLayout>

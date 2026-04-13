@@ -1,6 +1,6 @@
 ---
 import type { Locale } from '~/lib/i18n'
-import { t, pickLocalized } from '~/lib/i18n'
+import { t, pickLocalized, localizedHref } from '~/lib/i18n'
 import { clientFromEnv, urlFor } from '~/lib/sanity'
 import type { Product } from '~/lib/types'
 import ProductCard from './ProductCard.tsx'
@@ -27,7 +27,11 @@ const cards = products.map((p) => ({
       src: urlFor(client, ph).width(800).height(800).fit('crop').format('webp').url(),
       alt: ph.alt ?? `${pickLocalized(p.title, locale)} ${i + 1}`,
     })),
-    marketplaceLinks: p.marketplaceLinks,
+    marketplaceLinks: {
+      shopee: p.marketplaceListings?.find((l) => l.platform === 'shopee')?.url,
+      tokopedia: p.marketplaceListings?.find((l) => l.platform === 'tokopedia')?.url,
+      tiktokShop: p.marketplaceListings?.find((l) => l.platform === 'tiktokShop')?.url,
+    },
   },
 }))
 ---
@@ -66,6 +70,14 @@ const cards = products.map((p) => ({
             <ProductCard client:visible {...props} />
           </div>
         ))}
+      </div>
+      <div class="mt-8 text-center">
+        <a
+          href={localizedHref(locale, '/products')}
+          class="inline-block rounded-full border border-[color:var(--color-ink-300)] px-6 py-3 font-medium hover:bg-[color:var(--color-ink-100)]"
+        >
+          {locale === 'id' ? 'Lihat Semua Produk' : 'View All Products'} →
+        </a>
       </div>
     </>
   )}

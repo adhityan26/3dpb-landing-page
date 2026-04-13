@@ -1,0 +1,237 @@
+---
+import type { Locale } from '~/lib/i18n'
+import { t, pickLocalized } from '~/lib/i18n'
+import { clientFromEnv, urlFor } from '~/lib/sanity'
+import type { Product, LocalizedField } from '~/lib/types'
+import ProductCard from './ProductCard.tsx'
+
+interface Props {
+  locale: Locale
+  products: Product[]
+}
+const { locale, products } = Astro.props
+const client = clientFromEnv()
+
+const categories = [
+  { value: 'all', label: t(locale, 'products.filter_all') },
+  { value: 'keychain', label: t(locale, 'products.categories.keychain') },
+  { value: 'fidget', label: t(locale, 'products.categories.fidget') },
+  { value: 'cosplay', label: t(locale, 'products.categories.cosplay') },
+  { value: 'accessory', label: t(locale, 'products.categories.accessory') },
+  { value: 'other', label: t(locale, 'products.categories.other') },
+]
+
+const categoriesUsed = new Set(products.map((p) => p.category))
+
+const cards = products.map((p) => ({
+  category: p.category,
+  props: {
+    title: pickLocalized(p.title, locale) as string,
+    category: t(locale, `products.categories.${p.category}`),
+    shortDescription: (pickLocalized(p.shortDescription, locale) || '') as string,
+    photos: p.photos.map((ph, i) => ({
+      src: urlFor(client, ph).width(800).height(800).fit('crop').format('webp').url(),
+      alt: ph.alt ?? `${pickLocalized(p.title, locale)} ${i + 1}`,
+    })),
+    marketplaceLinks: {
+      shopee: p.marketplaceListings?.find((l) => l.platform === 'shopee')?.url,
+      tokopedia: p.marketplaceListings?.find((l) => l.platform === 'tokopedia')?.url,
+      tiktokShop: p.marketplaceListings?.find((l) => l.platform === 'tiktokShop')?.url,
+    },
+  },
+}))
+
+const perPageLabel = locale === 'id' ? 'per halaman' : 'per page'
+const produkLabel = locale === 'id' ? 'produk' : 'products'
+---
+<div class="flex flex-col gap-8 md:flex-row" data-catalog>
+  <!-- Sidebar -->
+  <aside class="shrink-0 md:w-56">
+    <h3 class="mb-4 text-sm font-semibold uppercase tracking-wide text-[color:var(--color-ink-500)]">
+      {locale === 'id' ? 'Kategori' : 'Category'}
+    </h3>
+    <nav class="flex flex-row flex-wrap gap-2 md:flex-col md:gap-1" data-catalog-filter>
+      {categories.filter((c) => c.value === 'all' || categoriesUsed.has(c.value)).map((c) => (
+        <button
+          type="button"
+          class="rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-[color:var(--color-ink-100)] data-[active=true]:bg-[color:var(--color-ink-900)] data-[active=true]:text-white"
+          data-filter={c.value}
+          data-active={c.value === 'all' ? 'true' : 'false'}
+        >
+          {c.label}
+          <span class="ml-1 text-xs opacity-60">
+            {c.value === 'all'
+              ? products.length
+              : products.filter((p) => p.category === c.value).length}
+          </span>
+        </button>
+      ))}
+    </nav>
+
+    <!-- Per-page selector -->
+    <div class="mt-6">
+      <h3 class="mb-2 text-sm font-semibold uppercase tracking-wide text-[color:var(--color-ink-500)]">
+        {perPageLabel}
+      </h3>
+      <div class="flex flex-wrap gap-1" data-perpage-selector>
+        {[10, 20, 50, 100].map((n) => (
+          <button
+            type="button"
+            class="rounded-md border border-[color:var(--color-ink-200)] px-2.5 py-1 text-xs transition-colors hover:bg-[color:var(--color-ink-100)] data-[active=true]:bg-[color:var(--color-ink-900)] data-[active=true]:text-white data-[active=true]:border-transparent"
+            data-perpage={n}
+            data-active={n === 10 ? 'true' : 'false'}
+          >
+            {n}
+          </button>
+        ))}
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="flex-1">
+    <!-- Top bar -->
+    <div class="mb-4 flex items-center justify-between">
+      <p class="text-sm text-[color:var(--color-ink-500)]" data-result-info>
+        {products.length} {produkLabel}
+      </p>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" data-catalog-grid>
+      {cards.map(({ category, props }) => (
+        <div data-category={category}>
+          <ProductCard client:visible {...props} />
+        </div>
+      ))}
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-8 flex items-center justify-center gap-2" data-pagination aria-label="Pagination">
+    </nav>
+  </div>
+</div>
+
+<script define:vars={{ produkLabel }}>
+  const allItems = Array.from(document.querySelectorAll('[data-catalog-grid] > [data-category]'))
+  const filterButtons = document.querySelectorAll('[data-catalog-filter] button')
+  const perPageButtons = document.querySelectorAll('[data-perpage-selector] button')
+  const resultInfo = document.querySelector('[data-result-info]')
+  const pagination = document.querySelector('[data-pagination]')
+
+  let currentFilter = 'all'
+  let currentPage = 1
+  let perPage = 10
+
+  function getFiltered() {
+    return allItems.filter(el =>
+      currentFilter === 'all' || el.dataset.category === currentFilter
+    )
+  }
+
+  function render() {
+    const filtered = getFiltered()
+    const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
+    if (currentPage > totalPages) currentPage = totalPages
+
+    const start = (currentPage - 1) * perPage
+    const end = start + perPage
+    const pageItems = new Set(filtered.slice(start, end))
+
+    // Show/hide
+    allItems.forEach(el => {
+      el.style.display = pageItems.has(el) ? '' : 'none'
+    })
+
+    // Result info
+    if (resultInfo) {
+      const from = filtered.length === 0 ? 0 : start + 1
+      const to = Math.min(end, filtered.length)
+      resultInfo.textContent = `${from}–${to} / ${filtered.length} ${produkLabel}`
+    }
+
+    // Pagination buttons
+    if (pagination) {
+      pagination.innerHTML = ''
+      if (totalPages <= 1) return
+
+      const btnClass = 'rounded-md border border-[color:var(--color-ink-200)] px-3 py-1.5 text-sm transition-colors hover:bg-[color:var(--color-ink-100)]'
+      const activeClass = 'rounded-md bg-[color:var(--color-ink-900)] px-3 py-1.5 text-sm text-white'
+      const disabledClass = 'rounded-md border border-[color:var(--color-ink-100)] px-3 py-1.5 text-sm text-[color:var(--color-ink-300)] cursor-not-allowed'
+
+      // Prev
+      const prev = document.createElement('button')
+      prev.textContent = '←'
+      prev.className = currentPage === 1 ? disabledClass : btnClass
+      prev.disabled = currentPage === 1
+      prev.addEventListener('click', () => { if (currentPage > 1) { currentPage--; render(); scrollToGrid() } })
+      pagination.appendChild(prev)
+
+      // Page numbers
+      const pages = getPageNumbers(currentPage, totalPages)
+      for (const p of pages) {
+        if (p === '...') {
+          const dots = document.createElement('span')
+          dots.textContent = '…'
+          dots.className = 'px-1 text-sm text-[color:var(--color-ink-400)]'
+          pagination.appendChild(dots)
+        } else {
+          const btn = document.createElement('button')
+          btn.textContent = String(p)
+          btn.className = p === currentPage ? activeClass : btnClass
+          btn.addEventListener('click', () => { currentPage = p; render(); scrollToGrid() })
+          pagination.appendChild(btn)
+        }
+      }
+
+      // Next
+      const next = document.createElement('button')
+      next.textContent = '→'
+      next.className = currentPage === totalPages ? disabledClass : btnClass
+      next.disabled = currentPage === totalPages
+      next.addEventListener('click', () => { if (currentPage < totalPages) { currentPage++; render(); scrollToGrid() } })
+      pagination.appendChild(next)
+    }
+  }
+
+  function getPageNumbers(current, total) {
+    if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1)
+    const pages = []
+    pages.push(1)
+    if (current > 3) pages.push('...')
+    for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
+      pages.push(i)
+    }
+    if (current < total - 2) pages.push('...')
+    pages.push(total)
+    return pages
+  }
+
+  function scrollToGrid() {
+    const grid = document.querySelector('[data-catalog-grid]')
+    if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  // Filter click
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentFilter = btn.dataset.filter
+      currentPage = 1
+      filterButtons.forEach(b => b.setAttribute('data-active', String(b === btn)))
+      render()
+    })
+  })
+
+  // Per-page click
+  perPageButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      perPage = parseInt(btn.dataset.perpage, 10)
+      currentPage = 1
+      perPageButtons.forEach(b => b.setAttribute('data-active', String(b === btn)))
+      render()
+    })
+  })
+
+  // Initial render
+  render()
+</script>
