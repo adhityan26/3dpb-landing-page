@@ -29,7 +29,7 @@ const ogImageUrl = settings?.seo?.ogImage
   ? urlFor(client, settings.seo.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
   : undefined
 ---
-<BaseLayout locale="en" title={title} description={description} ogImageUrl={ogImageUrl}>
+<BaseLayout locale="en" title={title} description={description} ogImageUrl={ogImageUrl} canonicalPath="/en/">
   <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main>
     <Hero

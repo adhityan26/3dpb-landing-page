@@ -15,11 +15,37 @@ const [settings, products] = await Promise.all([
   client.fetch<Product[]>(queries.allProducts),
 ])
 const title = 'All Products — ' + (pickLocalized(settings?.seo?.defaultTitle, 'en') || '3dprintingbandung')
-const description = 'Browse all 3D printed products from 3dprintingbandung.'
+const description = 'Browse all 3D printed products from 3dprintingbandung: keychains, fidgets, cosplay masks, sandal accessories, and more.'
 const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
 const logoAlt = settings?.logo?.alt
+const ogImageUrl = settings?.seo?.ogImage
+  ? urlFor(client, settings.seo.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
+  : undefined
+
+const productListJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: '3dprintingbandung Products',
+  numberOfItems: products.length,
+  itemListElement: products.slice(0, 30).map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': 'Product',
+      name: pickLocalized(p.title, 'en') || pickLocalized(p.title, 'id'),
+      image: p.photos[0] ? urlFor(client, p.photos[0]).width(800).height(800).fit('crop').format('webp').url() : undefined,
+      offers: p.marketplaceListings?.[0]?.price ? {
+        '@type': 'Offer',
+        priceCurrency: 'IDR',
+        price: p.marketplaceListings[0].price,
+        availability: 'https://schema.org/InStock',
+        url: p.marketplaceListings[0].url,
+      } : undefined,
+    },
+  })),
+}
 ---
-<BaseLayout locale="en" title={title} description={description}>
+<BaseLayout locale="en" title={title} description={description} ogImageUrl={ogImageUrl} canonicalPath="/en/products" jsonLd={[productListJsonLd]}>
   <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main class="mx-auto max-w-6xl px-4 py-12">
     <h1 class="mb-8 text-3xl font-display font-bold md:text-4xl">All Products</h1>
