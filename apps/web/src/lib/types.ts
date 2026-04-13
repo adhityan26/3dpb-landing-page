@@ -1,4 +1,4 @@
-export type ProductCategory = 'keychain' | 'fidget' | 'toy' | 'cosplay' | 'other'
+export type ProductCategory = 'keychain' | 'fidget' | 'toy' | 'cosplay' | 'accessory' | 'other'
 export type GalleryCategory = 'custom' | 'cosplay' | 'print-service' | 'showcase'
 export type LaunchStatus = 'coming-soon' | 'beta' | 'live'
 
@@ -54,6 +54,14 @@ export interface SiteSettings {
   }
 }
 
+export interface MarketplaceListing {
+  _key?: string
+  platform: 'shopee' | 'tokopedia' | 'tiktokShop' | 'other'
+  listingName?: string
+  url: string
+  price?: number
+}
+
 export interface Product {
   _id: string
   title: LocalizedField
@@ -61,7 +69,7 @@ export interface Product {
   category: ProductCategory
   photos: SanityImageRef[]
   shortDescription?: LocalizedField
-  marketplaceLinks: MarketplaceLinks
+  marketplaceListings?: MarketplaceListing[]
   featured: boolean
   order: number
 }

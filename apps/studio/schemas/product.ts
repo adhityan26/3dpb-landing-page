@@ -31,6 +31,7 @@ export default defineType({
           { title: 'Fidget', value: 'fidget' },
           { title: 'Toy', value: 'toy' },
           { title: 'Cosplay', value: 'cosplay' },
+          { title: 'Accessory', value: 'accessory' },
           { title: 'Other', value: 'other' },
         ],
         layout: 'radio',
@@ -61,19 +62,54 @@ export default defineType({
       type: 'internationalizedArrayText',
     }),
     defineField({
-      name: 'marketplaceLinks',
-      type: 'object',
-      fields: [
-        defineField({ name: 'shopee', type: 'url' }),
-        defineField({ name: 'tokopedia', type: 'url' }),
-        defineField({ name: 'tiktokShop', type: 'url', title: 'TikTok Shop' }),
+      name: 'marketplaceListings',
+      title: 'Marketplace Listings',
+      description: 'Links to this product on each marketplace platform.',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'listing',
+          fields: [
+            defineField({
+              name: 'platform',
+              type: 'string',
+              options: {
+                list: [
+                  { title: 'Shopee', value: 'shopee' },
+                  { title: 'Tokopedia', value: 'tokopedia' },
+                  { title: 'TikTok Shop', value: 'tiktokShop' },
+                  { title: 'Other', value: 'other' },
+                ],
+              },
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'listingName',
+              type: 'string',
+              title: 'Listing name (as shown on marketplace)',
+            }),
+            defineField({
+              name: 'url',
+              type: 'url',
+              validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'price',
+              type: 'number',
+              title: 'Price (IDR)',
+            }),
+          ],
+          preview: {
+            select: { platform: 'platform', name: 'listingName', price: 'price' },
+            prepare: ({ platform, name, price }) => ({
+              title: `${(platform ?? '').charAt(0).toUpperCase()}${(platform ?? '').slice(1)}: ${name ?? '(unnamed)'}`,
+              subtitle: price ? `Rp${price.toLocaleString('id-ID')}` : '',
+            }),
+          },
+        },
       ],
-      validation: (Rule) =>
-        Rule.custom((links: { shopee?: string; tokopedia?: string; tiktokShop?: string } | undefined) => {
-          if (!links) return 'Provide at least one marketplace link'
-          const any = links.shopee || links.tokopedia || links.tiktokShop
-          return any ? true : 'Provide at least one marketplace link'
-        }),
+      validation: (Rule) => Rule.min(1).error('Add at least one marketplace listing'),
     }),
     defineField({
       name: 'featured',

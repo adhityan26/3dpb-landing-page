@@ -50,6 +50,7 @@
       "fidget": "Fidget",
       "toy": "Toy",
       "cosplay": "Cosplay",
+      "accessory": "Accessory",
       "other": "Other"
     },
     "empty": "No featured products yet."

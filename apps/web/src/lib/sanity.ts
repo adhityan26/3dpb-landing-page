@@ -53,7 +53,7 @@ export const queries = {
     category,
     photos[]{..., "alt": alt},
     shortDescription,
-    marketplaceLinks,
+    marketplaceListings[]{_key, platform, listingName, url, price},
     featured,
     order
   }`,
@@ -64,6 +64,18 @@ export const queries = {
     image{..., "alt": alt},
     category,
     caption,
+    order
+  }`,
+
+  allProducts: /* groq */ `*[_type == "product"] | order(order asc){
+    _id,
+    title,
+    slug,
+    category,
+    photos[]{..., "alt": alt},
+    shortDescription,
+    marketplaceListings[]{_key, platform, listingName, url, price},
+    featured,
     order
   }`,
 
