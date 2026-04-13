@@ -89,4 +89,39 @@ export interface SilhouetteGenerator {
   devScreenshots: SanityImageRef[]
   launchStatus: LaunchStatus
   estimatedLaunch?: string
+  orderUrl?: string
+  orderLabel?: LocalizedField
+}
+
+export interface FaceshellCollectionItem {
+  _key?: string
+  image: SanityImageRef
+  title: LocalizedField
+  caption?: LocalizedField
+}
+
+export interface MeasurementStep {
+  _key?: string
+  text: LocalizedField
+  image?: SanityImageRef
+}
+
+export interface FaceshellCollection {
+  headline: LocalizedField
+  description?: LocalizedField
+  items?: FaceshellCollectionItem[]
+  measurementGuide?: {
+    title?: LocalizedField
+    description?: LocalizedField
+    steps?: MeasurementStep[]
+  }
+  orderWhatsappMessage?: string
+}
+
+export interface Testimonial {
+  _id: string
+  name: string
+  text: string
+  image?: SanityImageRef
+  order: number
 }

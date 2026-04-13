@@ -8,6 +8,7 @@ export const GET: APIRoute = () => {
   const pages = [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
     { path: '/products', priority: '0.9', changefreq: 'daily' },
+    { path: '/faceshell', priority: '0.8', changefreq: 'weekly' },
   ]
 
   const urls = pages.flatMap((page) => [

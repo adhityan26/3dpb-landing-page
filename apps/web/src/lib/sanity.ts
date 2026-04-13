@@ -84,7 +84,29 @@ export const queries = {
     description,
     devScreenshots[]{..., "alt": alt},
     launchStatus,
-    estimatedLaunch
+    estimatedLaunch,
+    orderUrl,
+    orderLabel
+  }`,
+
+  faceshellCollection: /* groq */ `*[_type == "faceshellCollection"][0]{
+    headline,
+    description,
+    items[]{_key, image{..., "alt": alt}, title, caption},
+    measurementGuide{
+      title,
+      description,
+      steps[]{_key, text, image{..., "alt": alt}}
+    },
+    orderWhatsappMessage
+  }`,
+
+  testimonials: /* groq */ `*[_type == "testimonial"] | order(order asc){
+    _id,
+    name,
+    text,
+    image{..., "alt": alt},
+    order
   }`,
 } as const
 

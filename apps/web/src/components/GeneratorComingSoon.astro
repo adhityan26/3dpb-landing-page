@@ -16,6 +16,8 @@ const client = clientFromEnv()
 const headline = pickLocalized(data?.headline, locale)
 const description = pickLocalized(data?.description, locale)
 const screenshots = data?.devScreenshots ?? []
+const orderUrl = data?.orderUrl
+const orderLabel = (data?.orderLabel && pickLocalized(data.orderLabel, locale)) || (locale === 'id' ? 'Coba Sekarang' : 'Try Now')
 
 const strings = {
   title: t(locale, 'generator.form.title'),
@@ -43,6 +45,16 @@ const strings = {
         <p class="mt-2 text-sm text-[color:var(--color-ink-500)]">
           {t(locale, 'generator.estimated_launch')}: <strong>{data.estimatedLaunch}</strong>
         </p>
+      )}
+      {orderUrl && (
+        <a
+          href={orderUrl}
+          target="_blank"
+          rel="noopener"
+          class="mt-4 inline-block rounded-full bg-[color:var(--color-brand-500)] px-6 py-3 font-medium text-white hover:bg-[color:var(--color-brand-600)]"
+        >
+          {orderLabel} →
+        </a>
       )}
       <div class="mt-6 max-w-md rounded-2xl border border-[color:var(--color-ink-300)] bg-white p-5">
         <WaitlistForm client:load strings={strings} />

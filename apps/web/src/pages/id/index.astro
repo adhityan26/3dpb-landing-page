@@ -9,17 +9,19 @@ import GeneratorComingSoon from '~/components/GeneratorComingSoon.astro'
 import ProductGrid from '~/components/ProductGrid.astro'
 import Gallery from '~/components/Gallery.astro'
 import MarketplaceCTA from '~/components/MarketplaceCTA.astro'
+import Testimonials from '~/components/Testimonials.astro'
 import Footer from '~/components/Footer.astro'
 import { clientFromEnv, queries, urlFor } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
-import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem } from '~/lib/types'
+import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem, Testimonial } from '~/lib/types'
 
 const client = clientFromEnv()
-const [settings, generator, products, gallery] = await Promise.all([
+const [settings, generator, products, gallery, testimonials] = await Promise.all([
   client.fetch<SiteSettings | null>(queries.siteSettings),
   client.fetch<SilhouetteGenerator | null>(queries.silhouetteGenerator),
   client.fetch<Product[]>(queries.featuredProducts),
   client.fetch<GalleryItem[]>(queries.galleryItems),
+  client.fetch<Testimonial[]>(queries.testimonials),
 ])
 const title = pickLocalized(settings?.seo?.defaultTitle, 'id') || '3dprintingbandung'
 const description = pickLocalized(settings?.seo?.defaultDescription, 'id') || 'Studio 3D printing di Bandung.'
@@ -43,6 +45,7 @@ const ogImageUrl = settings?.seo?.ogImage
     <GeneratorComingSoon locale="id" data={generator} />
     <ProductGrid locale="id" products={products} titleOverride={settings?.sections?.productsTitle} />
     <Gallery locale="id" items={gallery} titleOverride={settings?.sections?.galleryTitle} />
+    <Testimonials locale="id" testimonials={testimonials} />
     <MarketplaceCTA
       locale="id"
       links={settings?.marketplaceLinks ?? {}}

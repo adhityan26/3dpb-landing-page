@@ -32,14 +32,15 @@ export default defineConfig({
       templates.filter(
         ({ schemaType }) =>
           schemaType !== 'siteSettings' &&
-          schemaType !== 'silhouetteGenerator'
+          schemaType !== 'silhouetteGenerator' &&
+          schemaType !== 'faceshellCollection'
       ),
   },
 
   document: {
     // Hide the "delete" action on singletons
     actions: (input, context) => {
-      const singletons = ['siteSettings', 'silhouetteGenerator']
+      const singletons = ['siteSettings', 'silhouetteGenerator', 'faceshellCollection']
       if (singletons.includes(context.schemaType)) {
         return input.filter(({ action }) => action !== 'delete' && action !== 'duplicate')
       }

@@ -52,6 +52,18 @@ export default defineType({
       type: 'string',
       description: 'Free text, e.g. "Q3 2026"',
     }),
+    defineField({
+      name: 'orderUrl',
+      type: 'url',
+      title: 'Order / App URL',
+      description: 'External link to the generator app or order page.',
+    }),
+    defineField({
+      name: 'orderLabel',
+      type: 'internationalizedArrayString',
+      title: 'Order Button Label',
+      description: 'Button text, e.g. "Coba Sekarang" / "Try Now"',
+    }),
   ],
   preview: { prepare: () => ({ title: 'Silhouette Generator' }) },
 })

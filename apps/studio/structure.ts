@@ -20,9 +20,18 @@ export const structure: StructureResolver = (S) =>
             .schemaType('silhouetteGenerator')
             .documentId('silhouetteGenerator')
         ),
+      S.listItem()
+        .title('Faceshell Collection')
+        .id('faceshellCollection')
+        .child(
+          S.document()
+            .schemaType('faceshellCollection')
+            .documentId('faceshellCollection')
+        ),
       S.divider(),
       S.documentTypeListItem('product').title('Products'),
       S.documentTypeListItem('galleryItem').title('Gallery'),
+      S.documentTypeListItem('testimonial').title('Testimonials'),
       S.divider(),
       S.documentTypeListItem('waitlistEntry').title('Waitlist Entries'),
     ])
