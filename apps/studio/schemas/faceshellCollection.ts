@@ -100,6 +100,18 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'externalMeasurementUrl',
+      type: 'url',
+      title: 'External Head Measurement Tool',
+      description: 'Link to external website for head measurement (e.g. head sizing tool)',
+    }),
+    defineField({
+      name: 'externalMeasurementLabel',
+      type: 'internationalizedArrayString',
+      title: 'External Measurement Link Label',
+      description: 'Button text, e.g. "Ukur Kepala Online" / "Measure Your Head Online"',
+    }),
+    defineField({
       name: 'orderWhatsappMessage',
       type: 'string',
       title: 'Pre-filled WhatsApp message for ordering',

@@ -115,6 +115,8 @@ export interface FaceshellCollection {
     description?: LocalizedField
     steps?: MeasurementStep[]
   }
+  externalMeasurementUrl?: string
+  externalMeasurementLabel?: LocalizedField
   orderWhatsappMessage?: string
 }
 

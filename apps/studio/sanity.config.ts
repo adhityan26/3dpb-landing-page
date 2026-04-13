@@ -1,6 +1,7 @@
 import { defineConfig } from 'sanity'
 import { structureTool } from 'sanity/structure'
 import { visionTool } from '@sanity/vision'
+import { assist } from '@sanity/assist'
 import { internationalizedArray } from 'sanity-plugin-internationalized-array'
 import { schemaTypes } from './schemas'
 import { structure } from './structure'
@@ -15,6 +16,7 @@ export default defineConfig({
   plugins: [
     structureTool({ structure }),
     visionTool(),
+    assist(),
     internationalizedArray({
       languages: [
         { id: 'id', title: 'Bahasa Indonesia' },

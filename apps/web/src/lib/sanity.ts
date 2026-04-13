@@ -98,6 +98,8 @@ export const queries = {
       description,
       steps[]{_key, text, image{..., "alt": alt}}
     },
+    externalMeasurementUrl,
+    externalMeasurementLabel,
     orderWhatsappMessage
   }`,
 

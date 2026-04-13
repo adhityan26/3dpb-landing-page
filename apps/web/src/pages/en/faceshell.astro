@@ -31,6 +31,8 @@ const guide = collection?.measurementGuide
 const guideTitle = pickLocalized(guide?.title, 'en') || 'Measurement Guide'
 const guideDesc = pickLocalized(guide?.description, 'en')
 const steps = guide?.steps ?? []
+const extMeasureUrl = collection?.externalMeasurementUrl
+const extMeasureLabel = (collection?.externalMeasurementLabel && pickLocalized(collection.externalMeasurementLabel, 'en')) || 'Measure Your Head Online'
 const waMessage = collection?.orderWhatsappMessage || 'Hi, I am interested in ordering a custom Spiderman Faceshell.'
 const waNumber = settings?.contact?.whatsapp?.replace(/[^0-9]/g, '') || ''
 const waHref = `https://wa.me/${waNumber}?text=${encodeURIComponent(waMessage)}`
@@ -109,6 +111,16 @@ const productJsonLd = items.length > 0 ? {
             </li>
           ))}
         </ol>
+        {extMeasureUrl && (
+          <a
+            href={extMeasureUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-block rounded-full bg-[color:var(--color-brand-500)] px-6 py-3 font-medium text-white hover:bg-[color:var(--color-brand-600)]"
+          >
+            {extMeasureLabel} →
+          </a>
+        )}
       </section>
     )}
 
