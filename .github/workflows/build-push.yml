@@ -1,0 +1,103 @@
+name: Build & push images
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/build-push.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: adhityan26
+  SANITY_PROJECT_ID: narxcnnu
+  SANITY_DATASET: production
+  SANITY_API_VERSION: '2024-10-01'
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      studio: ${{ steps.filter.outputs.studio }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - '.github/workflows/build-push.yml'
+            studio:
+              - 'apps/studio/**'
+              - '.github/workflows/build-push.yml'
+
+  build-web:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push web image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/web
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/3dpb-web:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/3dpb-web:sha-${{ github.sha }}
+          build-args: |
+            PUBLIC_SANITY_PROJECT_ID=${{ env.SANITY_PROJECT_ID }}
+            PUBLIC_SANITY_DATASET=${{ env.SANITY_DATASET }}
+            PUBLIC_SANITY_API_VERSION=${{ env.SANITY_API_VERSION }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+  build-studio:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.studio == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & push studio image
+        uses: docker/build-push-action@v5
+        with:
+          context: apps/studio
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/3dpb-studio:latest
+            ${{ env.REGISTRY }}/${{ env.OWNER }}/3dpb-studio:sha-${{ github.sha }}
+          build-args: |
+            SANITY_STUDIO_PROJECT_ID=${{ env.SANITY_PROJECT_ID }}
+            SANITY_STUDIO_DATASET=${{ env.SANITY_DATASET }}
+          cache-from: type=gha,scope=studio
+          cache-to: type=gha,mode=max,scope=studio
