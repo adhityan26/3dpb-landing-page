@@ -1,6 +1,8 @@
 ---
 import type { Locale } from '~/lib/i18n'
 import { t, localizedHref } from '~/lib/i18n'
+import { clientFromEnv, queries } from '~/lib/sanity'
+import type { SilhouetteGenerator } from '~/lib/types'
 import LanguageSwitcher from './LanguageSwitcher.astro'
 
 interface Props {
@@ -16,19 +18,62 @@ const waHref = whatsappNumber
   : 'https://wa.me/'
 const logoSrc = logoUrl ?? '/assets/logo.svg'
 const logoAltText = logoAlt ?? '3dprintingbandung'
+
+// Detect whether we're on a home page (only pages that have generator/gallery anchors)
+const pathname = Astro.url.pathname.replace(/\/$/, '')
+const isHome = pathname === `/${locale}` || pathname === ''
+
+// Fetch generator orderUrl so Generator nav can deeplink externally from non-home
+let generatorExternalUrl: string | undefined
+try {
+  const client = clientFromEnv()
+  const gen = await client.fetch<SilhouetteGenerator | null>(queries.silhouetteGenerator)
+  generatorExternalUrl = gen?.orderUrl
+} catch {
+  generatorExternalUrl = undefined
+}
+
+const homePath = `/${locale}/`
+const generatorHref = isHome
+  ? '#generator'
+  : generatorExternalUrl ?? `${homePath}#generator`
+const galleryHref = isHome ? '#gallery' : `${homePath}#gallery`
+// Footer is on every page and has id="contact"
+const contactHref = '#contact'
+
+const links: Array<{ href: string; label: string; external?: boolean }> = [
+  { href: localizedHref(locale, '/products'), label: t(locale, 'nav.products') },
+  { href: localizedHref(locale, '/faceshell'), label: 'Faceshell' },
+  {
+    href: generatorHref,
+    label: t(locale, 'nav.generator'),
+    external: !isHome && Boolean(generatorExternalUrl),
+  },
+  { href: galleryHref, label: t(locale, 'nav.gallery') },
+  { href: contactHref, label: t(locale, 'nav.contact') },
+]
 ---
 <header class="sticky top-0 z-40 border-b border-[color:var(--color-ink-100)] bg-white/90 backdrop-blur">
   <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
     <a href={localizedHref(locale, '/')} class="flex items-center gap-2">
       <img src={logoSrc} alt={logoAltText} class="h-8 w-auto" />
     </a>
+
+    <!-- Desktop nav -->
     <ul class="hidden items-center gap-6 text-sm md:flex">
-      <li><a href={localizedHref(locale, '/products')} class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.products')}</a></li>
-      <li><a href={localizedHref(locale, '/faceshell')} class="hover:text-[color:var(--color-brand-600)]">{locale === 'id' ? 'Faceshell' : 'Faceshell'}</a></li>
-      <li><a href="#generator" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.generator')}</a></li>
-      <li><a href="#gallery" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.gallery')}</a></li>
-      <li><a href="#contact" class="hover:text-[color:var(--color-brand-600)]">{t(locale, 'nav.contact')}</a></li>
+      {links.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            class="hover:text-[color:var(--color-brand-600)]"
+            {...(l.external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {l.label}
+          </a>
+        </li>
+      ))}
     </ul>
+
     <div class="flex items-center gap-2">
       <LanguageSwitcher locale={locale} />
       <a
@@ -39,6 +84,76 @@ const logoAltText = logoAlt ?? '3dprintingbandung'
       >
         {t(locale, 'nav.whatsapp')}
       </a>
+
+      <!-- Mobile hamburger -->
+      <button
+        type="button"
+        aria-label="Open menu"
+        aria-expanded="false"
+        data-mobile-toggle
+        class="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[color:var(--color-ink-200)] hover:bg-[color:var(--color-ink-100)] md:hidden"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
     </div>
   </nav>
+
+  <!-- Mobile menu drawer -->
+  <div
+    data-mobile-menu
+    class="hidden border-t border-[color:var(--color-ink-100)] bg-white md:hidden"
+  >
+    <ul class="mx-auto max-w-6xl px-4 py-3 text-sm">
+      {links.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            class="block py-3 border-b border-[color:var(--color-ink-100)] last:border-b-0 hover:text-[color:var(--color-brand-600)]"
+            data-mobile-link
+            {...(l.external ? { target: '_blank', rel: 'noopener' } : {})}
+          >
+            {l.label}
+          </a>
+        </li>
+      ))}
+      <li>
+        <a
+          href={waHref}
+          target="_blank"
+          rel="noopener"
+          class="mt-3 block rounded-full bg-[color:var(--color-brand-500)] px-4 py-3 text-center font-medium text-white hover:bg-[color:var(--color-brand-600)]"
+        >
+          {t(locale, 'nav.whatsapp')}
+        </a>
+      </li>
+    </ul>
+  </div>
 </header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-mobile-toggle]')
+  const menu = document.querySelector<HTMLElement>('[data-mobile-menu]')
+  const links = document.querySelectorAll<HTMLAnchorElement>('[data-mobile-link]')
+
+  function close() {
+    menu?.classList.add('hidden')
+    toggle?.setAttribute('aria-expanded', 'false')
+  }
+  function open() {
+    menu?.classList.remove('hidden')
+    toggle?.setAttribute('aria-expanded', 'true')
+  }
+
+  toggle?.addEventListener('click', () => {
+    const isHidden = menu?.classList.contains('hidden')
+    if (isHidden) open()
+    else close()
+  })
+
+  // Close drawer when a link is clicked
+  links.forEach((a) => a.addEventListener('click', close))
+</script>
