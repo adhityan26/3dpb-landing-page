@@ -627,6 +627,14 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
             </ul>
           )}
 
+          <a href="https://www.strava.com" target="_blank" rel="noopener"
+            className="flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-400)] hover:text-[#FC4C02] transition-colors">
+            <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 text-[#FC4C02]">
+              <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h-5.67z"/>
+            </svg>
+            Powered by Strava
+          </a>
+
           <button type="button" onClick={() => setStep('connect')}
             className="text-sm text-[color:var(--color-ink-400)] hover:text-[color:var(--color-ink-700)]">
             ← {strings.backButton}
@@ -648,6 +656,16 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
           <div className="overflow-hidden rounded-xl border border-[color:var(--color-ink-200)]" style={{ height: '320px' }}>
             <MapPanel coords={coords} shape={shape} gpxColor={colors.gpxPath} onAreaChange={setAreaPolygon} />
           </div>
+
+          {inputSource === 'strava' && (
+            <a href="https://www.strava.com" target="_blank" rel="noopener"
+              className="flex items-center justify-center gap-1.5 text-xs text-[color:var(--color-ink-400)] hover:text-[#FC4C02] transition-colors">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 text-[#FC4C02]">
+                <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h-5.67z"/>
+              </svg>
+              Powered by Strava
+            </a>
+          )}
 
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Size */}
