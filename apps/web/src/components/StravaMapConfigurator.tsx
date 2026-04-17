@@ -332,6 +332,7 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
   const [whatsapp, setWhatsapp] = useState('')
   const [notes, setNotes] = useState('')
   const [contactError, setContactError] = useState('')
+  const [orderId, setOrderId] = useState('')
 
   const setColor = useCallback((key: keyof LayerColors, val: string) => {
     setColors((p) => ({ ...p, [key]: val }))
@@ -427,6 +428,8 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
         }),
       })
       if (!res.ok) throw new Error('submit failed')
+      const data = (await res.json()) as { ok: boolean; id?: string }
+      setOrderId(data.id ?? '')
       setStep('success')
     } catch {
       setContactError(strings.errorGeneric)
@@ -443,9 +446,10 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
   // ── Success ───────────────────────────────────────────────────────────────
 
   if (step === 'success') {
+    const orderRef = orderId ? ` (ID: ${orderId})` : ''
     const waMsg = locale === 'id'
-      ? `Halo, saya sudah order Strava Map 3D Print atas nama ${name}.`
-      : `Hi, I just submitted a Strava Map 3D Print order under the name ${name}.`
+      ? `Halo, saya sudah order Strava Map 3D Print atas nama ${name}${orderRef}.`
+      : `Hi, I just submitted a Strava Map 3D Print order under the name ${name}${orderRef}.`
     const waHref = whatsappNumber
       ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(waMsg)}`
       : undefined
