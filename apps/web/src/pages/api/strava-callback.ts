@@ -31,9 +31,11 @@ export async function GET(ctx: APIContext): Promise<Response> {
   const error = ctx.url.searchParams.get('error')
 
   const redirectBase = `/${state}/strava-map`
+  // Behind a reverse proxy ctx.url.origin is localhost — use SITE_URL env var instead
+  const origin = getEnv(ctx, 'SITE_URL') ?? ctx.url.origin
 
   if (error || !code) {
-    return Response.redirect(new URL(`${redirectBase}?strava_error=denied`, ctx.url.origin))
+    return Response.redirect(new URL(`${redirectBase}?strava_error=denied`, origin))
   }
 
   const clientId = getEnv(ctx, 'STRAVA_CLIENT_ID')
@@ -70,7 +72,7 @@ export async function GET(ctx: APIContext): Promise<Response> {
   return new Response(null, {
     status: 302,
     headers: {
-      Location: new URL(`${redirectBase}?strava_connected=1`, ctx.url.origin).toString(),
+      Location: new URL(`${redirectBase}?strava_connected=1`, origin).toString(),
       'Set-Cookie': `strava_token=${cookieValue}; HttpOnly; Path=/; Max-Age=${maxAge}; SameSite=Lax${isSecure ? '; Secure' : ''}`,
     },
   })
