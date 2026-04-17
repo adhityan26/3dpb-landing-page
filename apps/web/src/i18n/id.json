@@ -138,7 +138,7 @@
       "submit": "Pesan Sekarang",
       "submitting": "Mengirim…",
       "success": "Order diterima! Kami akan WhatsApp kamu untuk konfirmasi.",
-      "success_download_note": "File config map2model sudah otomatis ter-download.",
+      "success_download_note": "Order terkirim, mohon konfirmasi melalui whatsapp.",
       "success_download": "Download Config Lagi",
       "success_whatsapp": "Chat kami di WhatsApp",
       "error_invalid_name": "Masukkan namamu.",

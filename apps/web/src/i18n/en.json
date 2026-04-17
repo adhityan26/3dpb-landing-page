@@ -138,7 +138,7 @@
       "submit": "Place Order",
       "submitting": "Submitting…",
       "success": "Order received! We'll WhatsApp you to confirm.",
-      "success_download_note": "Your map2model config file was downloaded automatically.",
+      "success_download_note": "Order placed, please send us a WhatsApp message for confirmation.",
       "success_download": "Download Config Again",
       "success_whatsapp": "Chat us on WhatsApp",
       "error_invalid_name": "Please enter your name.",
