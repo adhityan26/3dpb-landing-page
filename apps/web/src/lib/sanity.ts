@@ -31,6 +31,7 @@ export const queries = {
     logo{..., "alt": alt},
     sections,
     pillars[]{_key, icon, title, body},
+    stravaMapImages[]{..., "alt": alt},
     contact{
       whatsapp,
       instagram,

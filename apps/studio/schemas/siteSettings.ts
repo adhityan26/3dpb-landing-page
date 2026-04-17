@@ -126,6 +126,18 @@ export default defineType({
       ],
     }),
     defineField({
+      name: 'stravaMapImages',
+      title: 'Strava Map Section — Preview Images',
+      type: 'array',
+      description: 'Foto hasil cetak yang ditampilkan di section Strava Map pada landing page.',
+      options: { layout: 'grid' },
+      of: [{
+        type: 'image',
+        options: { hotspot: true },
+        fields: [defineField({ name: 'alt', type: 'string', title: 'Alt text' })],
+      }],
+    }),
+    defineField({
       name: 'marketplaceLinks',
       type: 'object',
       fields: [

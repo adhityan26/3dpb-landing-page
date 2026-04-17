@@ -1,17 +1,26 @@
 ---
 import type { Locale } from '~/lib/i18n'
 import { t, localizedHref } from '~/lib/i18n'
+import { clientFromEnv, urlFor } from '~/lib/sanity'
+import type { SanityImageRef } from '~/lib/types'
 
 interface Props {
   locale: Locale
+  images?: SanityImageRef[]
 }
-const { locale } = Astro.props
+const { locale, images } = Astro.props
 
 const href = localizedHref(locale, '/strava-map')
 
 const steps = locale === 'id'
-  ? ['Paste link Strava kamu', 'Pilih bentuk & layer warna', 'Kami print dan kirim']
-  : ['Paste your Strava link', 'Pick shape & layer colors', 'We print and deliver']
+  ? ['Hubungkan akun Strava kamu', 'Pilih aktivitas, bentuk & warna layer', 'Kami print dan siap dikirim']
+  : ['Connect your Strava account', 'Pick activity, shape & layer colors', 'We print and deliver']
+
+const client = clientFromEnv()
+const imageUrls = (images ?? []).slice(0, 3).map((img) => ({
+  url: urlFor(client, img).width(600).height(600).fit('crop').format('webp').url(),
+  alt: img.alt ?? 'Strava 3D map print',
+}))
 ---
 <section id="strava-map" class="bg-[color:var(--color-ink-50)] py-20">
   <div class="mx-auto max-w-5xl px-4">
@@ -19,9 +28,6 @@ const steps = locale === 'id'
 
       <!-- Left: info -->
       <div>
-        <span class="mb-3 inline-block rounded-full bg-[color:var(--color-brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-brand-700)]">
-          {t(locale, 'strava_map.badge')}
-        </span>
         <h2 class="text-3xl font-display font-bold md:text-4xl">
           {t(locale, 'strava_map.title')}
         </h2>
@@ -42,21 +48,18 @@ const steps = locale === 'id'
 
       <!-- Right: CTA card -->
       <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-[color:var(--color-ink-100)] text-center">
-        <!-- Size visual -->
-        <div class="mb-8 flex items-end justify-center gap-5">
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-10 rounded-sm bg-[color:var(--color-brand-300)]" style="height:40px"></div>
-            <span class="text-xs font-medium">10 cm</span>
+
+        {imageUrls.length > 0 ? (
+          <!-- Image grid from Sanity -->
+          <div class={`mb-8 grid gap-3 ${imageUrls.length === 1 ? 'grid-cols-1' : imageUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+            {imageUrls.map(({ url, alt }) => (
+              <div class="overflow-hidden rounded-xl aspect-square">
+                <img src={url} alt={alt} class="h-full w-full object-cover" loading="lazy" />
+              </div>
+            ))}
           </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-14 rounded-sm bg-[color:var(--color-brand-400)]" style="height:56px"></div>
-            <span class="text-xs font-medium">15 cm</span>
-          </div>
-          <div class="flex flex-col items-center gap-1.5">
-            <div class="w-20 rounded-sm bg-[color:var(--color-brand-500)]" style="height:80px"></div>
-            <span class="text-xs font-medium">20 cm</span>
-          </div>
-        </div>
+        ) : null}
+
         <a
           href={href}
           class="inline-block w-full rounded-full bg-[color:var(--color-brand-500)] px-6 py-3.5 font-semibold text-white hover:bg-[color:var(--color-brand-600)]"

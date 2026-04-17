@@ -45,7 +45,7 @@ const ogImageUrl = settings?.seo?.ogImage
       ctaGeneratorLabel={settings?.sections?.heroCtaGenerator}
     />
     <Pillars locale="id" pillars={settings?.pillars} />
-    <StravaMapSection locale="id" />
+    <StravaMapSection locale="id" images={settings?.stravaMapImages} />
     <GeneratorComingSoon locale="id" data={generator} />
     <ProductGrid locale="id" products={products} titleOverride={settings?.sections?.productsTitle} />
     <Gallery locale="id" items={gallery} titleOverride={settings?.sections?.galleryTitle} />

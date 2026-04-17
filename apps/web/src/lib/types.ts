@@ -39,6 +39,7 @@ export interface SiteSettings {
   logo?: SanityImageRef
   sections?: SectionCopy
   pillars?: Pillar[]
+  stravaMapImages?: SanityImageRef[]
   contact: {
     whatsapp: string
     instagram: string
