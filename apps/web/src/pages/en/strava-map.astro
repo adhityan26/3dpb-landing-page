@@ -23,7 +23,13 @@ const stravaClientId =
   (typeof process !== 'undefined' ? process.env.STRAVA_CLIENT_ID : undefined) ??
   import.meta.env.STRAVA_CLIENT_ID
 
-const callbackUrl = new URL('/api/strava-callback', Astro.url.origin).toString()
+// Use SITE_URL env var to build the correct redirect_uri behind a reverse proxy
+// (Astro.url.origin returns localhost when behind nginx/Cloudflare tunnel)
+const siteUrl =
+  (typeof process !== 'undefined' ? process.env.SITE_URL : undefined) ??
+  import.meta.env.SITE_URL ??
+  Astro.url.origin
+const callbackUrl = new URL('/api/strava-callback', siteUrl).toString()
 const stravaConnectUrl = stravaClientId
   ? `https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=activity:read_all&approval_prompt=auto&state=en`
   : '#'
