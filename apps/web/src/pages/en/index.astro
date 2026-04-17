@@ -6,22 +6,25 @@ import Navbar from '~/components/Navbar.astro'
 import Hero from '~/components/Hero.astro'
 import Pillars from '~/components/Pillars.astro'
 import GeneratorComingSoon from '~/components/GeneratorComingSoon.astro'
+import StravaMapSection from '~/components/StravaMapSection.astro'
 import ProductGrid from '~/components/ProductGrid.astro'
 import Gallery from '~/components/Gallery.astro'
 import MarketplaceCTA from '~/components/MarketplaceCTA.astro'
 import Testimonials from '~/components/Testimonials.astro'
+import FAQ from '~/components/FAQ.astro'
 import Footer from '~/components/Footer.astro'
 import { clientFromEnv, queries, urlFor } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
-import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem, Testimonial } from '~/lib/types'
+import type { SiteSettings, SilhouetteGenerator, Product, GalleryItem, Testimonial, FAQ as FAQType } from '~/lib/types'
 
 const client = clientFromEnv()
-const [settings, generator, products, gallery, testimonials] = await Promise.all([
+const [settings, generator, products, gallery, testimonials, faqs] = await Promise.all([
   client.fetch<SiteSettings | null>(queries.siteSettings),
   client.fetch<SilhouetteGenerator | null>(queries.silhouetteGenerator),
   client.fetch<Product[]>(queries.featuredProducts),
   client.fetch<GalleryItem[]>(queries.galleryItems),
   client.fetch<Testimonial[]>(queries.testimonials),
+  client.fetch<FAQType[]>(queries.faqLanding),
 ])
 const title = pickLocalized(settings?.seo?.defaultTitle, 'en') || '3dprintingbandung'
 const description = pickLocalized(settings?.seo?.defaultDescription, 'en') || 'A 3D printing studio in Bandung.'
@@ -42,10 +45,12 @@ const ogImageUrl = settings?.seo?.ogImage
       ctaGeneratorLabel={settings?.sections?.heroCtaGenerator}
     />
     <Pillars locale="en" pillars={settings?.pillars} />
+    <StravaMapSection locale="en" />
     <GeneratorComingSoon locale="en" data={generator} />
     <ProductGrid locale="en" products={products} titleOverride={settings?.sections?.productsTitle} />
     <Gallery locale="en" items={gallery} titleOverride={settings?.sections?.galleryTitle} />
     <Testimonials locale="en" testimonials={testimonials} />
+    <FAQ locale="en" items={faqs} />
     <MarketplaceCTA
       locale="en"
       links={settings?.marketplaceLinks ?? {}}

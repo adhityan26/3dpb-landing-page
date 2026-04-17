@@ -32,6 +32,8 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem('product').title('Products'),
       S.documentTypeListItem('galleryItem').title('Gallery'),
       S.documentTypeListItem('testimonial').title('Testimonials'),
+      S.documentTypeListItem('faq').title('FAQ'),
       S.divider(),
       S.documentTypeListItem('waitlistEntry').title('Waitlist Entries'),
+      S.documentTypeListItem('stravaMapOrder').title('Strava Map Orders'),
     ])

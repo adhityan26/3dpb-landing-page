@@ -127,3 +127,13 @@ export interface Testimonial {
   image?: SanityImageRef
   order: number
 }
+
+export type FaqTag = 'general' | 'faceshell' | 'generator' | 'shipping'
+
+export interface FAQ {
+  _id: string
+  question: LocalizedField
+  answer: LocalizedField
+  tags: FaqTag[]
+  order: number
+}

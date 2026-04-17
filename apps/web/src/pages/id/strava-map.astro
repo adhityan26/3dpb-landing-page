@@ -1,0 +1,109 @@
+---
+export const prerender = false
+
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Navbar from '~/components/Navbar.astro'
+import Footer from '~/components/Footer.astro'
+import StravaMapConfigurator from '~/components/StravaMapConfigurator'
+import { clientFromEnv, urlFor } from '~/lib/sanity'
+import { t } from '~/lib/i18n'
+import type { SiteSettings } from '~/lib/types'
+
+const client = clientFromEnv()
+const settings = await client.fetch<SiteSettings | null>(
+  `*[_type == "siteSettings"][0]{ brandName, logo, contact, seo }`
+)
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const logoAlt = settings?.logo?.alt
+
+// Build Strava OAuth URL — client_id is not a secret, safe to expose
+const stravaClientId =
+  (Astro.locals as { runtime?: { env?: Record<string, string | undefined> } }).runtime?.env?.STRAVA_CLIENT_ID ??
+  import.meta.env.STRAVA_CLIENT_ID
+
+const callbackUrl = new URL('/api/strava-callback', Astro.url.origin).toString()
+const stravaConnectUrl = stravaClientId
+  ? `https://www.strava.com/oauth/authorize?client_id=${stravaClientId}&redirect_uri=${encodeURIComponent(callbackUrl)}&response_type=code&scope=activity:read_all&approval_prompt=auto&state=id`
+  : '#'
+
+const stravaConnected = Astro.url.searchParams.get('strava_connected') === '1'
+const stravaError = Astro.url.searchParams.get('strava_error') ?? undefined
+
+const strings = {
+  stepInput:            t('id', 'strava_map.step_input'),
+  stepMap:              t('id', 'strava_map.step_map'),
+  stepContact:          t('id', 'strava_map.step_contact'),
+  connectTitle:         t('id', 'strava_map.connect_title'),
+  connectDesc:          t('id', 'strava_map.connect_desc'),
+  connectButton:        t('id', 'strava_map.connect_button'),
+  orDivider:            t('id', 'strava_map.or_divider'),
+  gpxLabel:             t('id', 'strava_map.gpx_label'),
+  gpxHint:              t('id', 'strava_map.gpx_hint'),
+  pickTitle:            t('id', 'strava_map.pick_title'),
+  pickHint:             t('id', 'strava_map.pick_hint'),
+  loadingActivities:    t('id', 'strava_map.loading_activities'),
+  activityLoadError:    t('id', 'strava_map.activity_load_error'),
+  reconnectButton:      t('id', 'strava_map.reconnect_button'),
+  loadingRoute:         t('id', 'strava_map.loading_route'),
+  gpxParseError:        t('id', 'strava_map.gpx_parse_error'),
+  shapeLabel:           t('id', 'strava_map.shape_label'),
+  shapeSquare:          t('id', 'strava_map.shape_square'),
+  shapeRectangle:       t('id', 'strava_map.shape_rectangle'),
+  shapeCircle:          t('id', 'strava_map.shape_circle'),
+  shapeHexagon:         t('id', 'strava_map.shape_hexagon'),
+  layersLabel:          t('id', 'strava_map.layers_label'),
+  layersHint:           t('id', 'strava_map.layers_hint'),
+  layerGpx:             t('id', 'strava_map.layer_gpx'),
+  layerRoad:            t('id', 'strava_map.layer_road'),
+  layerWater:           t('id', 'strava_map.layer_water'),
+  layerGreen:           t('id', 'strava_map.layer_green'),
+  layerBuilding:        t('id', 'strava_map.layer_building'),
+  sizeLabel:            t('id', 'strava_map.size_label'),
+  sizeSmall:            t('id', 'strava_map.size_small'),
+  sizeMedium:           t('id', 'strava_map.size_medium'),
+  sizeLarge:            t('id', 'strava_map.size_large'),
+  nextButton:           t('id', 'strava_map.next_button'),
+  backButton:           t('id', 'strava_map.back_button'),
+  nameLabel:            t('id', 'strava_map.form.name_label'),
+  namePlaceholder:      t('id', 'strava_map.form.name_placeholder'),
+  whatsappLabel:        t('id', 'strava_map.form.whatsapp_label'),
+  whatsappPlaceholder:  t('id', 'strava_map.form.whatsapp_placeholder'),
+  notesLabel:           t('id', 'strava_map.form.notes_label'),
+  notesPlaceholder:     t('id', 'strava_map.form.notes_placeholder'),
+  submitButton:         t('id', 'strava_map.form.submit'),
+  submitting:           t('id', 'strava_map.form.submitting'),
+  success:              t('id', 'strava_map.form.success'),
+  successSub:           t('id', 'strava_map.form.success_download_note'),
+  errorInvalidName:     t('id', 'strava_map.form.error_invalid_name'),
+  errorInvalidWhatsapp: t('id', 'strava_map.form.error_invalid_whatsapp'),
+  errorGeneric:         t('id', 'strava_map.form.error_generic'),
+}
+---
+<BaseLayout locale="id" title="Strava Map 3D Print — 3dprintingbandung"
+  description="Cetak rute Strava-mu jadi peta 3D. Konfigurasi layer, warna, dan ukuran sendiri."
+  canonicalPath="/id/strava-map">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" slot="head" />
+  <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
+  <main class="mx-auto max-w-2xl px-4 py-12">
+    <div class="mb-8">
+      <a href="/id/#strava-map" class="text-sm text-[color:var(--color-ink-400)] hover:text-[color:var(--color-ink-700)]">← Kembali</a>
+      <h1 class="mt-4 text-3xl font-display font-bold md:text-4xl">
+        {t('id', 'strava_map.title')}
+      </h1>
+      <p class="mt-2 text-[color:var(--color-ink-500)]">{t('id', 'strava_map.description')}</p>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-[color:var(--color-ink-100)] md:p-8">
+      <StravaMapConfigurator
+        client:load
+        strings={strings}
+        locale="id"
+        whatsappNumber={settings?.contact?.whatsapp}
+        stravaConnectUrl={stravaConnectUrl}
+        stravaConnected={stravaConnected}
+        stravaError={stravaError}
+      />
+    </div>
+  </main>
+  <Footer locale="id" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
+</BaseLayout>

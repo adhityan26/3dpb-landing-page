@@ -1,0 +1,72 @@
+---
+import type { Locale } from '~/lib/i18n'
+import { t, localizedHref } from '~/lib/i18n'
+
+interface Props {
+  locale: Locale
+}
+const { locale } = Astro.props
+
+const href = localizedHref(locale, '/strava-map')
+
+const steps = locale === 'id'
+  ? ['Paste link Strava kamu', 'Pilih bentuk & layer warna', 'Kami print dan kirim']
+  : ['Paste your Strava link', 'Pick shape & layer colors', 'We print and deliver']
+---
+<section id="strava-map" class="bg-[color:var(--color-ink-50)] py-20">
+  <div class="mx-auto max-w-5xl px-4">
+    <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+
+      <!-- Left: info -->
+      <div>
+        <span class="mb-3 inline-block rounded-full bg-[color:var(--color-brand-100)] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[color:var(--color-brand-700)]">
+          {t(locale, 'strava_map.badge')}
+        </span>
+        <h2 class="text-3xl font-display font-bold md:text-4xl">
+          {t(locale, 'strava_map.title')}
+        </h2>
+        <p class="mt-4 text-[color:var(--color-ink-500)]">
+          {t(locale, 'strava_map.description')}
+        </p>
+        <ol class="mt-8 space-y-3">
+          {steps.map((step, i) => (
+            <li class="flex items-center gap-3 text-sm">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-brand-500)] text-xs font-bold text-white">
+                {i + 1}
+              </span>
+              {step}
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <!-- Right: CTA card -->
+      <div class="rounded-2xl bg-white p-8 shadow-sm ring-1 ring-[color:var(--color-ink-100)] text-center">
+        <!-- Size visual -->
+        <div class="mb-8 flex items-end justify-center gap-5">
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-10 rounded-sm bg-[color:var(--color-brand-300)]" style="height:40px"></div>
+            <span class="text-xs font-medium">10 cm</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-14 rounded-sm bg-[color:var(--color-brand-400)]" style="height:56px"></div>
+            <span class="text-xs font-medium">15 cm</span>
+          </div>
+          <div class="flex flex-col items-center gap-1.5">
+            <div class="w-20 rounded-sm bg-[color:var(--color-brand-500)]" style="height:80px"></div>
+            <span class="text-xs font-medium">20 cm</span>
+          </div>
+        </div>
+        <a
+          href={href}
+          class="inline-block w-full rounded-full bg-[color:var(--color-brand-500)] px-6 py-3.5 font-semibold text-white hover:bg-[color:var(--color-brand-600)]"
+        >
+          {t(locale, 'strava_map.cta')}
+        </a>
+        <p class="mt-3 text-xs text-[color:var(--color-ink-400)]">
+          {locale === 'id' ? 'Gratis konfigurasi · Bayar setelah konfirmasi' : 'Free to configure · Pay after confirmation'}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

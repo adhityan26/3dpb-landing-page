@@ -3,15 +3,17 @@ export const prerender = false
 
 import BaseLayout from '~/layouts/BaseLayout.astro'
 import Navbar from '~/components/Navbar.astro'
+import FAQ from '~/components/FAQ.astro'
 import Footer from '~/components/Footer.astro'
 import { clientFromEnv, queries, urlFor } from '~/lib/sanity'
 import { pickLocalized } from '~/lib/i18n'
-import type { SiteSettings, FaceshellCollection } from '~/lib/types'
+import type { SiteSettings, FaceshellCollection, FAQ as FAQType } from '~/lib/types'
 
 const client = clientFromEnv()
-const [settings, collection] = await Promise.all([
+const [settings, collection, faqs] = await Promise.all([
   client.fetch<SiteSettings | null>(queries.siteSettings),
   client.fetch<FaceshellCollection | null>(queries.faceshellCollection),
+  client.fetch<FAQType[]>(queries.faqFaceshell),
 ])
 
 const title = 'Spiderman Faceshell Collection — ' + (pickLocalized(settings?.seo?.defaultTitle, 'id') || '3dprintingbandung')
@@ -123,6 +125,9 @@ const productJsonLd = items.length > 0 ? {
         )}
       </section>
     )}
+
+    <!-- FAQ -->
+    <FAQ locale="id" items={faqs} />
 
     <!-- Order CTA -->
     <section class="rounded-2xl bg-[color:var(--color-ink-900)] p-8 text-center text-white md:p-12">

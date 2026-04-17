@@ -1,40 +1,31 @@
 import { defineField, defineType } from 'sanity'
 
 export default defineType({
-  name: 'testimonial',
-  title: 'Testimonial',
+  name: 'faq',
+  title: 'FAQ',
   type: 'document',
   fields: [
     defineField({
-      name: 'name',
-      type: 'string',
+      name: 'question',
+      type: 'internationalizedArrayString',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'text',
-      type: 'text',
-      rows: 4,
+      name: 'answer',
+      type: 'internationalizedArrayText',
       validation: (Rule) => Rule.required(),
-    }),
-    defineField({
-      name: 'image',
-      type: 'image',
-      description: 'Optional — screenshot WA chat, foto produk in hand, etc.',
-      options: { hotspot: true },
-      fields: [
-        defineField({ name: 'alt', type: 'string' }),
-      ],
     }),
     defineField({
       name: 'tags',
       type: 'array',
-      description: 'Which pages to show this testimonial on. Leave empty = landing only.',
+      description: 'Where this FAQ appears. Leave empty for landing page only.',
       of: [{ type: 'string' }],
       options: {
         list: [
           { title: 'General (landing)', value: 'general' },
           { title: 'Faceshell', value: 'faceshell' },
           { title: 'Generator', value: 'generator' },
+          { title: 'Shipping', value: 'shipping' },
         ],
       },
     }),
@@ -48,11 +39,10 @@ export default defineType({
     { title: 'Display order', name: 'orderAsc', by: [{ field: 'order', direction: 'asc' }] },
   ],
   preview: {
-    select: { title: 'name', subtitle: 'text', media: 'image' },
-    prepare: ({ title, subtitle, media }) => ({
-      title: title ?? '(unnamed)',
-      subtitle: subtitle ? subtitle.slice(0, 80) : '',
-      media,
+    select: { title: 'question.0.value', tags: 'tags' },
+    prepare: ({ title, tags }) => ({
+      title: title ?? '(untitled)',
+      subtitle: tags?.length ? tags.join(', ') : 'general',
     }),
   },
 })

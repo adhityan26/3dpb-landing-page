@@ -110,6 +110,22 @@ export const queries = {
     image{..., "alt": alt},
     order
   }`,
+
+  faqLanding: /* groq */ `*[_type == "faq" && ("general" in tags || count(tags) == 0)] | order(order asc){
+    _id,
+    question,
+    answer,
+    tags,
+    order
+  }`,
+
+  faqFaceshell: /* groq */ `*[_type == "faq" && "faceshell" in tags] | order(order asc){
+    _id,
+    question,
+    answer,
+    tags,
+    order
+  }`,
 } as const
 
 export function clientFromEnv(env: Record<string, string | undefined> = import.meta.env as unknown as Record<string, string | undefined>): SanityClient {
