@@ -316,6 +316,8 @@ const SPORT_ICON: Record<string, string> = {
 
 export default function StravaMapConfigurator({ strings, locale, whatsappNumber, stravaConnectUrl, stravaConnected, stravaError }: Props) {
   const [step, setStep] = useState<Step>(stravaConnected ? 'pick' : 'connect')
+  // Track how the customer provided their route so the back button in 'map' goes to the right step
+  const [inputSource, setInputSource] = useState<'gpx' | 'strava'>(stravaConnected ? 'strava' : 'gpx')
   const [activities, setActivities] = useState<StravaActivity[]>([])
   const [activitiesLoading, setActivitiesLoading] = useState(stravaConnected)
   const [activitiesError, setActivitiesError] = useState('')
@@ -362,6 +364,7 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
   // Load GPS streams when activity is selected
   async function handlePickActivity(activity: StravaActivity) {
     setSelectedActivity(activity)
+    setInputSource('strava')
     setRouteLoading(true)
     try {
       const res = await fetch(`/api/strava/activity/${activity.id}`)
@@ -377,10 +380,11 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
     }
   }
 
-  // GPX fallback
+  // GPX upload — primary input for bazar customers
   async function handleGpxFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.currentTarget.files?.[0]
     if (!file) return
+    setInputSource('gpx')
     setRouteLoading(true)
     try {
       const text = await file.text()
@@ -494,36 +498,64 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
             </div>
           )}
 
-          <div className="rounded-xl border-2 border-[#FC4C02]/20 bg-[#FC4C02]/5 p-6 text-center">
-            <div className="mb-3 text-4xl">🚴</div>
-            <h3 className="mb-1 font-display text-lg font-bold">{strings.connectTitle}</h3>
-            <p className="mb-5 text-sm text-[color:var(--color-ink-500)]">{strings.connectDesc}</p>
-            <a
-              href={stravaConnectUrl}
-              className="inline-flex items-center gap-2 rounded-full bg-[#FC4C02] px-6 py-3 font-semibold text-white hover:bg-[#e04302]"
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h-5.67z"/>
-              </svg>
-              {strings.connectButton}
-            </a>
-          </div>
-
-          <div className="relative flex items-center">
-            <div className="flex-1 border-t border-[color:var(--color-ink-200)]" />
-            <span className="mx-3 text-xs text-[color:var(--color-ink-400)]">{strings.orDivider}</span>
-            <div className="flex-1 border-t border-[color:var(--color-ink-200)]" />
-          </div>
-
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-[color:var(--color-ink-300)] p-6 text-sm text-[color:var(--color-ink-500)] hover:border-[color:var(--color-brand-400)] hover:text-[color:var(--color-brand-600)]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-6 w-6">
+          {/* GPX upload — primary action */}
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-[color:var(--color-ink-300)] p-8 text-sm text-[color:var(--color-ink-500)] hover:border-[color:var(--color-brand-400)] hover:text-[color:var(--color-brand-600)] transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-8 w-8">
               <path d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 3.129a.75.75 0 001.09-1.03l-4.25-4.5a.75.75 0 00-1.09 0l-4.25 4.5a.75.75 0 101.09 1.03L9.25 4.636v8.614z" />
               <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
             </svg>
-            <span className="font-medium">{strings.gpxLabel}</span>
+            <span className="font-semibold text-base">{strings.gpxLabel}</span>
             <span className="text-center text-xs">{strings.gpxHint}</span>
+            {routeLoading && <span className="text-xs text-[color:var(--color-brand-500)]">{strings.loadingRoute}</span>}
             <input type="file" accept=".gpx" onChange={handleGpxFile} className="sr-only" disabled={routeLoading} />
           </label>
+
+          {/* How to export from Strava */}
+          <div className="rounded-lg bg-[color:var(--color-ink-50)] px-4 py-3 text-xs text-[color:var(--color-ink-500)]">
+            <p className="font-medium mb-1">
+              {locale === 'id' ? 'Cara export GPX dari Strava:' : 'How to export GPX from Strava:'}
+            </p>
+            <ol className="list-decimal list-inside space-y-0.5">
+              {locale === 'id' ? (
+                <>
+                  <li>Buka Strava → pilih aktivitas</li>
+                  <li>Ketuk ⋮ (tiga titik) → <strong>Export GPX</strong></li>
+                  <li>Upload file di sini</li>
+                </>
+              ) : (
+                <>
+                  <li>Open Strava → select your activity</li>
+                  <li>Tap ⋮ (three dots) → <strong>Export GPX</strong></li>
+                  <li>Upload the file here</li>
+                </>
+              )}
+            </ol>
+          </div>
+
+          {/* Strava OAuth — secondary, for users who prefer it */}
+          <details className="group">
+            <summary className="cursor-pointer list-none text-center text-xs text-[color:var(--color-ink-400)] hover:text-[color:var(--color-ink-700)]">
+              <span className="group-open:hidden">
+                {locale === 'id' ? '▸ atau hubungkan langsung ke Strava' : '▸ or connect directly with Strava'}
+              </span>
+              <span className="hidden group-open:inline">
+                {locale === 'id' ? '▾ sembunyikan' : '▾ collapse'}
+              </span>
+            </summary>
+            <div className="mt-4 rounded-xl border-2 border-[#FC4C02]/20 bg-[#FC4C02]/5 p-5 text-center">
+              <h3 className="mb-1 font-display font-bold">{strings.connectTitle}</h3>
+              <p className="mb-4 text-xs text-[color:var(--color-ink-500)]">{strings.connectDesc}</p>
+              <a
+                href={stravaConnectUrl}
+                className="inline-flex items-center gap-2 rounded-full bg-[#FC4C02] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#e04302]"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+                  <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h-5.67z"/>
+                </svg>
+                {strings.connectButton}
+              </a>
+            </div>
+          </details>
         </div>
       )}
 
@@ -681,7 +713,7 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
           </fieldset>
 
           <div className="flex gap-3">
-            <button type="button" onClick={() => setStep('pick')}
+            <button type="button" onClick={() => setStep(inputSource === 'strava' ? 'pick' : 'connect')}
               className="rounded-full border border-[color:var(--color-ink-300)] px-5 py-2.5 text-sm font-medium hover:bg-[color:var(--color-ink-50)]">
               {strings.backButton}
             </button>
