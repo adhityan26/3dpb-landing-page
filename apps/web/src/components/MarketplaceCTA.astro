@@ -8,8 +8,12 @@ interface Props {
   links: MarketplaceLinks
   titleOverride?: LocalizedField
   subtitleOverride?: LocalizedField
+  whatsappNumber?: string
 }
-const { locale, links, titleOverride, subtitleOverride } = Astro.props
+const { locale, links, titleOverride, subtitleOverride, whatsappNumber } = Astro.props
+const waHref = whatsappNumber
+  ? `https://wa.me/${whatsappNumber.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(locale === 'id' ? 'Halo, saya mau tanya tentang produk 3dprintingbandung' : 'Hi, I want to ask about 3dprintingbandung products')}`
+  : undefined
 const title = (titleOverride && pickLocalized(titleOverride, locale)) || t(locale, 'marketplace.title')
 const subtitle = (subtitleOverride && pickLocalized(subtitleOverride, locale)) || t(locale, 'marketplace.subtitle')
 ---
@@ -46,6 +50,16 @@ const subtitle = (subtitleOverride && pickLocalized(subtitleOverride, locale)) |
           class="rounded-xl bg-black px-5 py-4 text-center text-lg font-semibold ring-1 ring-white/30 hover:bg-white/10"
         >
           TikTok Shop
+        </a>
+      )}
+      {waHref && (
+        <a
+          href={waHref}
+          target="_blank"
+          rel="noopener"
+          class="rounded-xl bg-[#25D366] px-5 py-4 text-center text-lg font-semibold hover:opacity-90 sm:col-span-3"
+        >
+          {locale === 'id' ? 'Chat WhatsApp' : 'Chat on WhatsApp'}
         </a>
       )}
     </div>

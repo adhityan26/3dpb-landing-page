@@ -1,14 +1,14 @@
 {
   "nav": {
     "products": "Products",
-    "generator": "Generator",
+    "generator": "Silhouette Lamp",
     "gallery": "Gallery",
     "contact": "Contact",
     "whatsapp": "WhatsApp"
   },
   "hero": {
     "cta_marketplace": "Shop on Marketplaces",
-    "cta_generator": "See Silhouette Generator"
+    "cta_generator": "See Silhouette Lamp"
   },
   "pillars": {
     "title": "What We Offer",

@@ -1,14 +1,14 @@
 {
   "nav": {
     "products": "Produk",
-    "generator": "Generator",
+    "generator": "Silhouette Lamp",
     "gallery": "Galeri",
     "contact": "Kontak",
     "whatsapp": "WhatsApp"
   },
   "hero": {
     "cta_marketplace": "Belanja di Marketplace",
-    "cta_generator": "Lihat Silhouette Generator"
+    "cta_generator": "Lihat Silhouette Lamp"
   },
   "pillars": {
     "title": "Apa yang Kami Tawarkan",
