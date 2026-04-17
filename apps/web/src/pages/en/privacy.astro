@@ -1,0 +1,163 @@
+---
+export const prerender = true
+
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Navbar from '~/components/Navbar.astro'
+import Footer from '~/components/Footer.astro'
+import { clientFromEnv, urlFor } from '~/lib/sanity'
+import type { SiteSettings } from '~/lib/types'
+
+const client = clientFromEnv()
+const settings = await client.fetch<SiteSettings | null>(
+  `*[_type == "siteSettings"][0]{ brandName, logo, contact, seo }`
+)
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const logoAlt = settings?.logo?.alt
+const brand = settings?.brandName ?? '3dprintingbandung'
+const site = 'https://3dprintingbandung.my.id'
+const email = settings?.contact?.email ?? 'hello@3dprintingbandung.my.id'
+const updated = '2026-04-18'
+---
+<BaseLayout locale="en" title={`Privacy Policy — ${brand}`}
+  description="Privacy Policy for 3dprintingbandung, covering how we handle your data including Strava activity data."
+  canonicalPath="/en/privacy">
+  <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
+  <main class="mx-auto max-w-2xl px-4 py-12">
+    <div class="mb-8">
+      <a href="/en/" class="text-sm text-[color:var(--color-ink-400)] hover:text-[color:var(--color-ink-700)]">← Home</a>
+      <h1 class="mt-4 text-3xl font-display font-bold">Privacy Policy</h1>
+      <p class="mt-1 text-sm text-[color:var(--color-ink-400)]">Last updated: {updated}</p>
+    </div>
+
+    <div class="prose prose-sm max-w-none space-y-8 text-[color:var(--color-ink-700)]">
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">1. Who we are</h2>
+        <p>
+          <strong>{brand}</strong> is a 3D printing studio based in Bandung, Indonesia. We operate the website
+          <a href={site} class="text-[color:var(--color-brand-600)] hover:underline">{site}</a>.
+          This policy explains what personal data we collect, why we collect it, and how we use it.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">2. Data we collect</h2>
+        <h3 class="font-semibold mt-4 mb-1">2a. Strava activity data</h3>
+        <p>
+          When you use our <strong>Strava Map 3D Print</strong> service and choose to connect your Strava account,
+          we request read-only access to your Strava activities via the official Strava API (scope: <code>activity:read_all</code>).
+          We collect:
+        </p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>Activity name, type, distance, and date</li>
+          <li>GPS route coordinates (latitude / longitude stream)</li>
+          <li>Your Strava athlete ID (used only to fetch your activities)</li>
+        </ul>
+        <p class="mt-2">
+          We do <strong>not</strong> collect your Strava password, heart-rate, power, or any health metrics.
+          Alternatively, you can upload a <code>.gpx</code> file exported from any app — in this case
+          no Strava account connection is required.
+        </p>
+
+        <h3 class="font-semibold mt-4 mb-1">2b. Order information</h3>
+        <p>When you place an order, we collect your name and WhatsApp number to fulfill and deliver your order.</p>
+
+        <h3 class="font-semibold mt-4 mb-1">2c. Technical data</h3>
+        <p>
+          Standard server logs (IP address, browser type, pages visited) are retained for up to 30 days
+          for security and debugging purposes only.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">3. How we use your data</h2>
+        <ul class="list-disc list-inside space-y-1">
+          <li>To generate a 3D-printable map model from your GPS route</li>
+          <li>To process and deliver your physical 3D print order</li>
+          <li>To contact you via WhatsApp about your order status</li>
+          <li>To improve our service (aggregated, non-identifiable usage patterns only)</li>
+        </ul>
+        <p class="mt-2">We do <strong>not</strong> sell, rent, or share your personal data with third parties for marketing purposes.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">4. Strava data usage compliance</h2>
+        <p>
+          We use the Strava API in accordance with the
+          <a href="https://www.strava.com/legal/api" target="_blank" rel="noopener" class="text-[color:var(--color-brand-600)] hover:underline">Strava API Agreement</a>.
+          Specifically:
+        </p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>We only request the minimum permissions needed (read-only activity access)</li>
+          <li>GPS data is used solely to render your chosen route into a 3D map product</li>
+          <li>We do not display or resell your Strava data to any third party</li>
+          <li>You may revoke our access at any time via <a href="https://www.strava.com/settings/apps" target="_blank" rel="noopener" class="text-[color:var(--color-brand-600)] hover:underline">Strava Settings → My Apps</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">5. Data retention</h2>
+        <p>
+          Activity GPS data associated with your order is stored in our internal order management system
+          (Sanity CMS) for order fulfillment and quality assurance. We retain this data for a maximum of
+          <strong>1 year</strong> after order completion, after which it is deleted.
+        </p>
+        <p class="mt-2">
+          Strava OAuth tokens stored in your browser session cookie expire automatically and are not
+          persisted server-side beyond the active session.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">6. Your rights</h2>
+        <p>You can request at any time:</p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li><strong>Access</strong>: a copy of the personal data we hold about you</li>
+          <li><strong>Deletion</strong>: removal of your personal data from our systems</li>
+          <li><strong>Correction</strong>: update of any inaccurate data</li>
+        </ul>
+        <p class="mt-2">
+          To exercise these rights, contact us at
+          <a href={`mailto:${email}`} class="text-[color:var(--color-brand-600)] hover:underline">{email}</a>.
+          We will respond within 30 days.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">7. Cookies</h2>
+        <p>
+          We use a single httpOnly session cookie to store your Strava access token during the order flow.
+          This cookie expires when your browser session ends or when you disconnect Strava. We do not use
+          advertising or tracking cookies.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">8. Third-party services</h2>
+        <ul class="list-disc list-inside space-y-1">
+          <li><strong>Strava API</strong> — for fetching your activities when you choose to connect</li>
+          <li><strong>OpenStreetMap</strong> — tile maps displayed during route preview (no personal data shared)</li>
+          <li><strong>Sanity CMS</strong> — stores order details; data hosted in the EU/US per their <a href="https://www.sanity.io/legal/privacy" target="_blank" rel="noopener" class="text-[color:var(--color-brand-600)] hover:underline">privacy policy</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">9. Changes to this policy</h2>
+        <p>
+          We may update this policy from time to time. The "Last updated" date at the top of this page
+          will reflect any changes. Continued use of the service after changes constitutes acceptance.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">10. Contact</h2>
+        <p>
+          For any privacy-related questions, contact us at:<br />
+          <a href={`mailto:${email}`} class="text-[color:var(--color-brand-600)] hover:underline">{email}</a>
+        </p>
+      </section>
+
+    </div>
+  </main>
+  <Footer locale="en" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
+</BaseLayout>

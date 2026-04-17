@@ -1,0 +1,165 @@
+---
+export const prerender = true
+
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Navbar from '~/components/Navbar.astro'
+import Footer from '~/components/Footer.astro'
+import { clientFromEnv, urlFor } from '~/lib/sanity'
+import type { SiteSettings } from '~/lib/types'
+
+const client = clientFromEnv()
+const settings = await client.fetch<SiteSettings | null>(
+  `*[_type == "siteSettings"][0]{ brandName, logo, contact, seo }`
+)
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const logoAlt = settings?.logo?.alt
+const brand = settings?.brandName ?? '3dprintingbandung'
+const site = 'https://3dprintingbandung.my.id'
+const email = settings?.contact?.email ?? 'hello@3dprintingbandung.my.id'
+const updated = '2026-04-18'
+---
+<BaseLayout locale="id" title={`Kebijakan Privasi — ${brand}`}
+  description="Kebijakan Privasi 3dprintingbandung, termasuk penjelasan penggunaan data Strava kamu."
+  canonicalPath="/id/privacy">
+  <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
+  <main class="mx-auto max-w-2xl px-4 py-12">
+    <div class="mb-8">
+      <a href="/id/" class="text-sm text-[color:var(--color-ink-400)] hover:text-[color:var(--color-ink-700)]">← Beranda</a>
+      <h1 class="mt-4 text-3xl font-display font-bold">Kebijakan Privasi</h1>
+      <p class="mt-1 text-sm text-[color:var(--color-ink-400)]">Terakhir diperbarui: {updated}</p>
+    </div>
+
+    <div class="prose prose-sm max-w-none space-y-8 text-[color:var(--color-ink-700)]">
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">1. Tentang Kami</h2>
+        <p>
+          <strong>{brand}</strong> adalah studio 3D printing yang berlokasi di Bandung, Indonesia.
+          Kami mengoperasikan situs web
+          <a href={site} class="text-[color:var(--color-brand-600)] hover:underline">{site}</a>.
+          Kebijakan ini menjelaskan data pribadi apa yang kami kumpulkan, mengapa, dan bagaimana kami menggunakannya.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">2. Data yang Kami Kumpulkan</h2>
+        <h3 class="font-semibold mt-4 mb-1">2a. Data aktivitas Strava</h3>
+        <p>
+          Ketika kamu menggunakan layanan <strong>Strava Map 3D Print</strong> dan memilih untuk menghubungkan
+          akun Strava kamu, kami meminta akses baca-saja ke aktivitas Strava kamu melalui Strava API resmi
+          (scope: <code>activity:read_all</code>). Data yang kami kumpulkan:
+        </p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>Nama aktivitas, jenis, jarak, dan tanggal</li>
+          <li>Koordinat rute GPS (stream latitude / longitude)</li>
+          <li>Athlete ID Strava kamu (digunakan hanya untuk mengambil aktivitas kamu)</li>
+        </ul>
+        <p class="mt-2">
+          Kami <strong>tidak</strong> mengumpulkan password Strava, detak jantung, power, atau metrik
+          kesehatan lainnya. Sebagai alternatif, kamu bisa upload file <code>.gpx</code> yang diekspor
+          dari aplikasi manapun — dalam hal ini tidak diperlukan koneksi akun Strava.
+        </p>
+
+        <h3 class="font-semibold mt-4 mb-1">2b. Informasi pesanan</h3>
+        <p>Saat kamu melakukan pesanan, kami mengumpulkan nama dan nomor WhatsApp kamu untuk memproses dan mengirimkan pesananmu.</p>
+
+        <h3 class="font-semibold mt-4 mb-1">2c. Data teknis</h3>
+        <p>
+          Log server standar (alamat IP, jenis browser, halaman yang dikunjungi) disimpan hingga 30 hari
+          untuk keperluan keamanan dan debugging saja.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">3. Cara Kami Menggunakan Data</h2>
+        <ul class="list-disc list-inside space-y-1">
+          <li>Untuk membuat model peta 3D yang dapat dicetak dari rute GPS kamu</li>
+          <li>Untuk memproses dan mengirimkan pesanan cetak 3D fisik kamu</li>
+          <li>Untuk menghubungi kamu via WhatsApp terkait status pesanan</li>
+          <li>Untuk meningkatkan layanan kami (pola penggunaan agregat, tidak dapat diidentifikasi)</li>
+        </ul>
+        <p class="mt-2">Kami <strong>tidak</strong> menjual, menyewakan, atau membagikan data pribadi kamu kepada pihak ketiga untuk tujuan pemasaran.</p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">4. Kepatuhan Penggunaan Data Strava</h2>
+        <p>
+          Kami menggunakan Strava API sesuai dengan
+          <a href="https://www.strava.com/legal/api" target="_blank" rel="noopener" class="text-[color:var(--color-brand-600)] hover:underline">Perjanjian API Strava</a>.
+          Secara spesifik:
+        </p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li>Kami hanya meminta izin minimum yang diperlukan (akses aktivitas baca-saja)</li>
+          <li>Data GPS digunakan semata-mata untuk merender rute kamu menjadi produk peta 3D</li>
+          <li>Kami tidak menampilkan atau menjual kembali data Strava kamu ke pihak ketiga manapun</li>
+          <li>Kamu dapat mencabut akses kami kapan saja melalui <a href="https://www.strava.com/settings/apps" target="_blank" rel="noopener" class="text-[color:var(--color-brand-600)] hover:underline">Pengaturan Strava → My Apps</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">5. Retensi Data</h2>
+        <p>
+          Data GPS aktivitas yang terkait dengan pesananmu disimpan di sistem manajemen pesanan internal kami
+          (Sanity CMS) untuk pemenuhan pesanan dan jaminan kualitas. Kami menyimpan data ini maksimal
+          <strong>1 tahun</strong> setelah pesanan selesai, setelah itu dihapus.
+        </p>
+        <p class="mt-2">
+          Token OAuth Strava yang tersimpan di cookie sesi browser kamu kedaluwarsa secara otomatis
+          dan tidak disimpan di sisi server di luar sesi aktif.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">6. Hak Kamu</h2>
+        <p>Kamu dapat meminta kapan saja:</p>
+        <ul class="list-disc list-inside mt-2 space-y-1">
+          <li><strong>Akses</strong>: salinan data pribadi yang kami miliki tentang kamu</li>
+          <li><strong>Penghapusan</strong>: penghapusan data pribadimu dari sistem kami</li>
+          <li><strong>Koreksi</strong>: pembaruan data yang tidak akurat</li>
+        </ul>
+        <p class="mt-2">
+          Untuk menggunakan hak-hak ini, hubungi kami di
+          <a href={`mailto:${email}`} class="text-[color:var(--color-brand-600)] hover:underline">{email}</a>.
+          Kami akan merespons dalam 30 hari.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">7. Cookie</h2>
+        <p>
+          Kami menggunakan satu cookie sesi httpOnly untuk menyimpan token akses Strava kamu selama alur
+          pemesanan. Cookie ini kedaluwarsa saat sesi browser kamu berakhir atau saat kamu memutuskan
+          koneksi Strava. Kami tidak menggunakan cookie iklan atau pelacakan.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">8. Layanan Pihak Ketiga</h2>
+        <ul class="list-disc list-inside space-y-1">
+          <li><strong>Strava API</strong> — untuk mengambil aktivitasmu saat kamu memilih untuk terhubung</li>
+          <li><strong>OpenStreetMap</strong> — peta tile yang ditampilkan saat pratinjau rute (tidak ada data pribadi yang dibagikan)</li>
+          <li><strong>Sanity CMS</strong> — menyimpan detail pesanan; data dihosting di EU/US sesuai <a href="https://www.sanity.io/legal/privacy" target="_blank" rel="noopener" class="text-[color:var(--color-brand-600)] hover:underline">kebijakan privasi mereka</a></li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">9. Perubahan Kebijakan</h2>
+        <p>
+          Kami dapat memperbarui kebijakan ini dari waktu ke waktu. Tanggal "Terakhir diperbarui" di bagian
+          atas halaman ini akan mencerminkan setiap perubahan. Penggunaan layanan yang berkelanjutan setelah
+          perubahan berarti kamu menyetujui kebijakan yang diperbarui.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="text-lg font-display font-semibold mb-2">10. Kontak</h2>
+        <p>
+          Untuk pertanyaan terkait privasi, hubungi kami di:<br />
+          <a href={`mailto:${email}`} class="text-[color:var(--color-brand-600)] hover:underline">{email}</a>
+        </p>
+      </section>
+
+    </div>
+  </main>
+  <Footer locale="id" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
+</BaseLayout>
