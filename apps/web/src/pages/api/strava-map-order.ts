@@ -8,7 +8,7 @@ const WA_REGEX = /^(\+?62|0)[0-9]{8,13}$/
 const STRAVA_REGEX = /^https:\/\/(www\.)?strava\.com\//
 const HEX_REGEX = /^#[0-9A-Fa-f]{6}$/
 const VALID_SIZES = ['small', 'medium', 'large'] as const
-const VALID_SHAPES = ['square', 'rectangle', 'circle'] as const
+const VALID_SHAPES = ['square', 'rectangle', 'circle', 'hexagon'] as const
 const VALID_LAYERS = ['road', 'water', 'green', 'building'] as const
 
 type Size = (typeof VALID_SIZES)[number]
@@ -32,6 +32,7 @@ interface RequestBody {
   colors?: unknown
   enabledLayers?: unknown
   gpxGeoJson?: unknown
+  areaPolygon?: unknown
   notes?: unknown
 }
 
@@ -72,6 +73,9 @@ export async function POST(ctx: APIContext): Promise<Response> {
   const gpxGeoJson = typeof body.gpxGeoJson === 'object' && body.gpxGeoJson !== null
     ? body.gpxGeoJson as Record<string, unknown>
     : null
+  const areaPolygon = typeof body.areaPolygon === 'object' && body.areaPolygon !== null
+    ? body.areaPolygon as Record<string, unknown>
+    : null
 
   if (!name || name.length > 100) return Response.json({ error: 'invalid_name' }, { status: 400 })
   if (!whatsapp || !WA_REGEX.test(whatsapp)) return Response.json({ error: 'invalid_whatsapp' }, { status: 400 })
@@ -110,6 +114,7 @@ export async function POST(ctx: APIContext): Promise<Response> {
   }
   if (notes) doc.notes = notes
   if (gpxGeoJson) doc.gpxGeoJson = JSON.stringify(gpxGeoJson)
+  if (areaPolygon) doc.areaPolygon = JSON.stringify(areaPolygon)
 
   let sanityId: string
   try {

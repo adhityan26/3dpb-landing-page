@@ -17,6 +17,7 @@ interface StoredOrder {
   enabledLayers?: LayerName[]
   colors?: Partial<LayerColors>
   gpxGeoJson?: string
+  areaPolygon?: string
 }
 
 function getEnv(ctx: APIContext, key: string): string | undefined {
@@ -44,7 +45,7 @@ export async function GET(ctx: APIContext): Promise<Response> {
   let order: StoredOrder | null
   try {
     order = await client.fetch<StoredOrder | null>(
-      `*[_type == "stravaMapOrder" && _id == $id][0]{ _id, name, size, shape, enabledLayers, colors, gpxGeoJson }`,
+      `*[_type == "stravaMapOrder" && _id == $id][0]{ _id, name, size, shape, enabledLayers, colors, gpxGeoJson, areaPolygon }`,
       { id }
     )
   } catch (err) {
@@ -67,12 +68,18 @@ export async function GET(ctx: APIContext): Promise<Response> {
     try { gpxGeoJson = JSON.parse(order.gpxGeoJson) as Record<string, unknown> } catch { /* ignore */ }
   }
 
+  let areaPolygon: Record<string, unknown> | undefined
+  if (order.areaPolygon) {
+    try { areaPolygon = JSON.parse(order.areaPolygon) as Record<string, unknown> } catch { /* ignore */ }
+  }
+
   const projectJson = generateMap2ModelProject({
     size: order.size ?? 'medium',
     shape: order.shape ?? 'square',
     colors: { ...DEFAULT_COLORS, ...(order.colors ?? {}) },
     enabledLayers: order.enabledLayers,
     gpxGeoJson,
+    areaPolygon,
   })
 
   const safeName = (order.name ?? 'order').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')

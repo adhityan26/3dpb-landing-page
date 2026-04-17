@@ -5,7 +5,7 @@
  */
 
 export type MapSize = 'small' | 'medium' | 'large'
-export type MapShape = 'square' | 'rectangle' | 'circle'
+export type MapShape = 'square' | 'rectangle' | 'circle' | 'hexagon'
 
 export interface LayerColors {
   gpxPath: string
@@ -23,6 +23,7 @@ export interface Map2ModelConfig {
   colors: LayerColors
   enabledLayers?: LayerName[]
   gpxGeoJson?: Record<string, unknown>
+  areaPolygon?: Record<string, unknown>
   frameText?: string
 }
 
@@ -183,7 +184,7 @@ export function generateMap2ModelProject(config: Map2ModelConfig): Record<string
       exportGridCols: 1,
       exportGridRows: 1,
     },
-    areaPolygon: null,
+    areaPolygon: config.areaPolygon ?? null,
     buildingOverrides: {},
   }
 }

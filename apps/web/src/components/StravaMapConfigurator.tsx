@@ -67,12 +67,63 @@ function ColorSwatch({ label, value, onChange }: { label: string; value: string;
   )
 }
 
+// ── Area polygon helper ───────────────────────────────────────────────────────
+// Converts the interactive shape position to a GeoJSON Polygon.
+// GeoJSON uses [lng, lat] order; Leaflet/shapePosRef uses [lat, lng].
+
+function computeAreaPolygon(
+  pos: { center: [number, number]; latHalf: number; lngHalf: number },
+  sh: Shape
+): Record<string, unknown> {
+  const { center, latHalf, lngHalf } = pos
+  let ring: [number, number][]
+
+  if (sh === 'circle') {
+    const half = Math.max(latHalf, lngHalf)
+    ring = Array.from({ length: 64 }, (_, i) => {
+      const rad = (i * 2 * Math.PI) / 64
+      return [center[1] + half * Math.cos(rad), center[0] + half * Math.sin(rad)] as [number, number]
+    })
+    ring.push(ring[0])
+  } else if (sh === 'square') {
+    const half = Math.max(latHalf, lngHalf)
+    ring = [
+      [center[1] - half, center[0] - half],
+      [center[1] + half, center[0] - half],
+      [center[1] + half, center[0] + half],
+      [center[1] - half, center[0] + half],
+      [center[1] - half, center[0] - half],
+    ]
+  } else if (sh === 'hexagon') {
+    const half = Math.max(latHalf, lngHalf)
+    ring = [0, 60, 120, 180, 240, 300].map((deg) => {
+      const rad = (deg * Math.PI) / 180
+      return [center[1] + half * Math.cos(rad), center[0] + half * Math.sin(rad)] as [number, number]
+    })
+    ring.push(ring[0])
+  } else {
+    // rectangle — independent axes
+    ring = [
+      [center[1] - lngHalf, center[0] - latHalf],
+      [center[1] + lngHalf, center[0] - latHalf],
+      [center[1] + lngHalf, center[0] + latHalf],
+      [center[1] - lngHalf, center[0] + latHalf],
+      [center[1] - lngHalf, center[0] - latHalf],
+    ]
+  }
+
+  return { type: 'Polygon', coordinates: [ring] }
+}
+
 // ── MapPanel ─────────────────────────────────────────────────────────────────
 // Interactive print-area overlay with draggable move + resize handles.
 // Uses refs (not state) for the mutable shape position so drag events don't
 // trigger React re-renders on every frame.
 
-function MapPanel({ coords, shape, gpxColor }: { coords: RouteCoords; shape: Shape; gpxColor: string }) {
+function MapPanel({ coords, shape, gpxColor, onAreaChange }: {
+  coords: RouteCoords; shape: Shape; gpxColor: string
+  onAreaChange?: (polygon: Record<string, unknown>) => void
+}) {
   const containerRef = useRef<HTMLDivElement>(null)
   const mapRef = useRef<LMap | null>(null)
   const LRef = useRef<typeof import('leaflet') | null>(null)
@@ -218,6 +269,16 @@ function MapPanel({ coords, shape, gpxColor }: { coords: RouteCoords; shape: Sha
     resizeHandleRef.current = resizeMarker
 
     redrawShapeLayer(L, map, shapeTypeRef.current)
+    // Emit initial polygon so parent has a value before the user drags anything
+    if (shapePosRef.current) onAreaChange?.(computeAreaPolygon(shapePosRef.current, shapeTypeRef.current))
+
+    // Update polygon after drag ends (not on every drag frame)
+    moveMarker.on('dragend', () => {
+      if (shapePosRef.current) onAreaChange?.(computeAreaPolygon(shapePosRef.current, shapeTypeRef.current))
+    })
+    resizeMarker.on('dragend', () => {
+      if (shapePosRef.current) onAreaChange?.(computeAreaPolygon(shapePosRef.current, shapeTypeRef.current))
+    })
   }, [mapReady, coords, gpxColor]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Redraw shape layer when shape type changes (handles stay in place)
@@ -230,6 +291,7 @@ function MapPanel({ coords, shape, gpxColor }: { coords: RouteCoords; shape: Sha
       shapePosRef.current.lngHalf = half
     }
     redrawShapeLayer(LRef.current, mapRef.current, shape)
+    onAreaChange?.(computeAreaPolygon(shapePosRef.current, shape))
   }, [mapReady, shape]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return <div ref={containerRef} className="h-full w-full rounded-xl" style={{ minHeight: '300px' }} />
@@ -261,6 +323,7 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
   const [routeLoading, setRouteLoading] = useState(false)
   const [coords, setCoords] = useState<RouteCoords>([])
   const [geoJson, setGeoJson] = useState<Record<string, unknown> | null>(null)
+  const [areaPolygon, setAreaPolygon] = useState<Record<string, unknown> | null>(null)
   const [shape, setShape] = useState<Shape>('square')
   const [enabledLayers, setEnabledLayers] = useState<Set<Layer>>(new Set(['road', 'water', 'green']))
   const [colors, setColors] = useState<LayerColors>({ ...DEFAULT_COLORS })
@@ -359,6 +422,7 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
           enabledLayers: [...enabledLayers],
           colors,
           gpxGeoJson: geoJson,
+          areaPolygon,
           notes: notes.trim() || undefined,
         }),
       })
@@ -546,7 +610,7 @@ export default function StravaMapConfigurator({ strings, locale, whatsappNumber,
           )}
 
           <div className="overflow-hidden rounded-xl border border-[color:var(--color-ink-200)]" style={{ height: '320px' }}>
-            <MapPanel coords={coords} shape={shape} gpxColor={colors.gpxPath} />
+            <MapPanel coords={coords} shape={shape} gpxColor={colors.gpxPath} onAreaChange={setAreaPolygon} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">

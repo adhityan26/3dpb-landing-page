@@ -37,6 +37,7 @@ export default defineType({
           { title: 'Square', value: 'square' },
           { title: 'Rectangle (follow route bounds)', value: 'rectangle' },
           { title: 'Circle', value: 'circle' },
+          { title: 'Hexagon', value: 'hexagon' },
         ],
         layout: 'radio',
       },
@@ -70,6 +71,14 @@ export default defineType({
       type: 'text',
       group: 'config',
       description: 'Stored automatically on submit. Used to regenerate the map2model project file.',
+      readOnly: true,
+    }),
+    defineField({
+      name: 'areaPolygon',
+      title: 'Print Area Polygon (GeoJSON)',
+      type: 'text',
+      group: 'config',
+      description: 'The exact area the customer drew on the map. Used as areaPolygon in map2model.',
       readOnly: true,
     }),
 
