@@ -17,8 +17,10 @@ const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() 
 const logoAlt = settings?.logo?.alt
 
 // Build Strava OAuth URL — client_id is not a secret, safe to expose
+// Check all three env sources: Cloudflare runtime, Node process.env, build-time
 const stravaClientId =
   (Astro.locals as { runtime?: { env?: Record<string, string | undefined> } }).runtime?.env?.STRAVA_CLIENT_ID ??
+  (typeof process !== 'undefined' ? process.env.STRAVA_CLIENT_ID : undefined) ??
   import.meta.env.STRAVA_CLIENT_ID
 
 const callbackUrl = new URL('/api/strava-callback', Astro.url.origin).toString()
