@@ -16,6 +16,10 @@ services:
       STRAVA_CLIENT_ID: ${STRAVA_CLIENT_ID}
       STRAVA_CLIENT_SECRET: ${STRAVA_CLIENT_SECRET}
       SITE_URL: ${SITE_URL}
+      # Set to "true" once Strava production access is granted.
+      # false (default): GPX upload is primary, Strava OAuth is collapsed at bottom.
+      # true: Strava connect is primary (expanded), GPX is collapsed at bottom.
+      STRAVA_PRIMARY: ${STRAVA_PRIMARY:-false}
 
   studio:
     image: ghcr.io/adhityan26/3dpb-studio:latest

@@ -37,6 +37,10 @@ const stravaConnectUrl = stravaClientId
 const stravaConnected = Astro.url.searchParams.get('strava_connected') === '1'
 const stravaError = Astro.url.searchParams.get('strava_error') ?? undefined
 
+// When STRAVA_PRIMARY=true: Strava connect is the main CTA (use after production access is granted)
+// When unset/false: GPX upload is primary (current default for bazar / development)
+const stravaFirst = (typeof process !== 'undefined' ? process.env.STRAVA_PRIMARY : undefined) === 'true'
+
 const strings = {
   stepInput:            t('id', 'strava_map.step_input'),
   stepMap:              t('id', 'strava_map.step_map'),
@@ -110,6 +114,7 @@ const strings = {
         stravaConnectUrl={stravaConnectUrl}
         stravaConnected={stravaConnected}
         stravaError={stravaError}
+        stravaFirst={stravaFirst}
       />
     </div>
   </main>
