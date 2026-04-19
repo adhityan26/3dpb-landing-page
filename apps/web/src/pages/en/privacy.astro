@@ -12,6 +12,7 @@ const settings = await client.fetch<SiteSettings | null>(
   `*[_type == "siteSettings"][0]{ brandName, logo, contact, seo }`
 )
 const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const faviconUrl = settings?.logo ? urlFor(client, settings.logo).width(64).height(64).fit('crop').format('png').url() : undefined
 const logoAlt = settings?.logo?.alt
 const brand = settings?.brandName ?? '3dprintingbandung'
 const site = 'https://3dprintingbandung.my.id'
@@ -20,7 +21,7 @@ const updated = '2026-04-18'
 ---
 <BaseLayout locale="en" title={`Privacy Policy — ${brand}`}
   description="Privacy Policy for 3dprintingbandung, covering how we handle your data including Strava activity data."
-  canonicalPath="/en/privacy">
+  canonicalPath="/en/privacy" faviconUrl={faviconUrl}>
   <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main class="mx-auto max-w-2xl px-4 py-12">
     <div class="mb-8">

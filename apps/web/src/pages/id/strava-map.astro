@@ -14,6 +14,7 @@ const settings = await client.fetch<SiteSettings | null>(
   `*[_type == "siteSettings"][0]{ brandName, logo, contact, seo }`
 )
 const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const faviconUrl = settings?.logo ? urlFor(client, settings.logo).width(64).height(64).fit('crop').format('png').url() : undefined
 const logoAlt = settings?.logo?.alt
 
 // Build Strava OAuth URL — client_id is not a secret, safe to expose
@@ -93,7 +94,7 @@ const strings = {
 ---
 <BaseLayout locale="id" title="Strava Map 3D Print — 3dprintingbandung"
   description="Cetak rute Strava-mu jadi peta 3D. Konfigurasi layer, warna, dan ukuran sendiri."
-  canonicalPath="/id/strava-map">
+  canonicalPath="/id/strava-map" faviconUrl={faviconUrl}>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" slot="head" />
   <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main class="mx-auto max-w-2xl px-4 py-12">

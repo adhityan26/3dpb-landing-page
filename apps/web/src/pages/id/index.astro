@@ -29,12 +29,13 @@ const [settings, generator, products, gallery, testimonials, faqs] = await Promi
 const title = pickLocalized(settings?.seo?.defaultTitle, 'id') || '3dprintingbandung'
 const description = pickLocalized(settings?.seo?.defaultDescription, 'id') || 'Studio 3D printing di Bandung.'
 const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const faviconUrl = settings?.logo ? urlFor(client, settings.logo).width(64).height(64).fit('crop').format('png').url() : undefined
 const logoAlt = settings?.logo?.alt
 const ogImageUrl = settings?.seo?.ogImage
   ? urlFor(client, settings.seo.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
   : undefined
 ---
-<BaseLayout locale="id" title={title} description={description} ogImageUrl={ogImageUrl} canonicalPath="/id/">
+<BaseLayout locale="id" title={title} description={description} ogImageUrl={ogImageUrl} canonicalPath="/id/" faviconUrl={faviconUrl}>
   <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main>
     <Hero

@@ -17,6 +17,7 @@ const [settings, products] = await Promise.all([
 const title = 'Semua Produk — ' + (pickLocalized(settings?.seo?.defaultTitle, 'id') || '3dprintingbandung')
 const description = 'Lihat semua produk 3D print dari 3dprintingbandung: keychain, fidget, cosplay mask, aksesoris sandal, dan lainnya.'
 const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const faviconUrl = settings?.logo ? urlFor(client, settings.logo).width(64).height(64).fit('crop').format('png').url() : undefined
 const logoAlt = settings?.logo?.alt
 const ogImageUrl = settings?.seo?.ogImage
   ? urlFor(client, settings.seo.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
@@ -45,7 +46,7 @@ const productListJsonLd = {
   })),
 }
 ---
-<BaseLayout locale="id" title={title} description={description} ogImageUrl={ogImageUrl} canonicalPath="/id/products" jsonLd={[productListJsonLd]}>
+<BaseLayout locale="id" title={title} description={description} ogImageUrl={ogImageUrl} canonicalPath="/id/products" faviconUrl={faviconUrl} jsonLd={[productListJsonLd]}>
   <Navbar locale="id" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
   <main class="mx-auto max-w-6xl px-4 py-12">
     <h1 class="mb-8 text-3xl font-display font-bold md:text-4xl">Semua Produk</h1>

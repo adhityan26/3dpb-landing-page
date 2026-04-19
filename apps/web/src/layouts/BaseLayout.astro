@@ -9,9 +9,10 @@ interface Props {
   ogImageUrl?: string
   canonicalPath?: string
   jsonLd?: Record<string, unknown>[]
+  faviconUrl?: string
 }
 
-const { locale, title, description, ogImageUrl, canonicalPath, jsonLd } = Astro.props
+const { locale, title, description, ogImageUrl, canonicalPath, jsonLd, faviconUrl } = Astro.props
 const siteUrl = import.meta.env.PUBLIC_SITE_URL ?? 'https://3dprintingbandung.my.id'
 const cfAnalyticsToken = import.meta.env.PUBLIC_CLOUDFLARE_ANALYTICS_TOKEN
 const pageUrl = canonicalPath ? `${siteUrl}${canonicalPath}` : `${siteUrl}/${locale}/`
@@ -24,7 +25,10 @@ const otherPath = canonicalPath ? canonicalPath.replace(`/${locale}/`, `/${other
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {faviconUrl
+      ? <link rel="icon" type="image/png" href={faviconUrl} />
+      : <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    }
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={pageUrl} />
