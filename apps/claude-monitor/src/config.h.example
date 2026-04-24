@@ -1,0 +1,22 @@
+#pragma once
+
+// WiFi
+#define WIFI_SSID     "YourSSID"
+#define WIFI_PASSWORD "YourPassword"
+
+// Anthropic API — admin key dengan permission "usage"
+// Buat di: https://console.anthropic.com/settings/keys
+#define ANTHROPIC_API_KEY "sk-ant-api03-..."
+
+// Timezone offset detik dari UTC (WIB = UTC+7 = 25200)
+#define NTP_OFFSET_SEC 25200
+
+// Refresh interval ms (default 5 menit)
+#define REFRESH_INTERVAL_MS 300000UL
+
+// Budget bulanan USD — isi 0 untuk nonaktifkan
+#define MONTHLY_BUDGET_USD 150.0f
+
+// Weekly token limit — sesuaikan dengan tier API kamu
+// Tier 1: ~50M/week, Tier 2: ~200M/week — cek console.anthropic.com
+#define WEEKLY_TOKEN_LIMIT 50000000UL
