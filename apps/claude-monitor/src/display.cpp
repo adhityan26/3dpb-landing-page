@@ -14,6 +14,18 @@ void displayClear() {
   tft.fillScreen(C_BG);
 }
 
+void drawHeader(const String& lastUpdate) {
+  tft.fillRect(0, 0, 320, 15, C_BG);
+  tft.setTextColor(C_GREEN, C_BG);
+  tft.setTextSize(1);
+  tft.setCursor(4, 4);
+  tft.print("CLAUDE MONITOR");
+  tft.setTextColor(C_DIM, C_BG);
+  tft.setCursor(180, 4);
+  tft.print("upd: ");
+  tft.print(lastUpdate);
+}
+
 void drawClockStrip(const String& timeStr, const String& dateStr) {
   // Background strip
   tft.fillRect(0, 16, 320, 42, tft.color565(10, 10, 31));  // biru gelap
