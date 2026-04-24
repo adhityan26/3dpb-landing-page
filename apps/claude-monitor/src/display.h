@@ -14,3 +14,4 @@ extern TFT_eSPI tft;
 
 void displayInit();
 void displayClear();
+void drawClockStrip(const String& timeStr, const String& dateStr);

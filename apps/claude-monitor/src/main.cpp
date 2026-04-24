@@ -8,17 +8,20 @@ void setup() {
   tft.setTextColor(C_YELLOW, C_BG);
   tft.setTextSize(1);
   tft.setCursor(10, 110);
-  tft.print("Connecting WiFi...");
+  tft.print("Connecting...");
   wifiConnect();
-  Serial.println(clockGetTime());
-  Serial.println(clockGetDate());
-  tft.fillScreen(C_BG);
+  displayClear();
+  // Header placeholder
   tft.setTextColor(C_GREEN, C_BG);
-  tft.setCursor(10, 110);
-  tft.print("WiFi OK: ");
-  tft.print(clockGetTime());
+  tft.setTextSize(1);
+  tft.setCursor(6, 4);
+  tft.print("CLAUDE MONITOR");
 }
 
 void loop() {
-  delay(1000);
+  static unsigned long lastClockUpdate = 0;
+  if (millis() - lastClockUpdate >= 1000) {
+    lastClockUpdate = millis();
+    drawClockStrip(clockGetTime(), clockGetDate());
+  }
 }
