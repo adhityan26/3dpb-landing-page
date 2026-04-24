@@ -9,6 +9,47 @@
 static const char* API_HOST = "api.anthropic.com";
 static const char* USAGE_PATH = "/v1/usage";
 
+// Helper: fetch token+cost aggregate for a date range (no rate limit headers)
+static bool fetchRangeAggregate(const String& startDate, const String& endDate,
+                                 uint32_t& tokensOut, float& costOut) {
+  WiFiClientSecure client;
+  client.setInsecure();
+  HTTPClient http;
+
+  String url = String("https://") + API_HOST + USAGE_PATH;
+  url += "?start_time=" + startDate + "T00:00:00Z&end_time=" + endDate + "T23:59:59Z";
+
+  if (!http.begin(client, url)) return false;
+  http.addHeader("x-api-key", ANTHROPIC_API_KEY);
+  http.addHeader("anthropic-version", "2023-06-01");
+
+  int code = http.GET();
+  if (code != 200) {
+    Serial.printf("[API] range %s->%s HTTP %d\n", startDate.c_str(), endDate.c_str(), code);
+    http.end();
+    return false;
+  }
+
+  String body = http.getString();
+  http.end();
+
+  JsonDocument doc;
+  if (deserializeJson(doc, body) != DeserializationError::Ok) return false;
+  JsonArray data = doc["data"].as<JsonArray>();
+  if (data.isNull()) return false;
+
+  tokensOut = 0;
+  costOut = 0.0f;
+  for (JsonObject entry : data) {
+    tokensOut += (uint32_t)(entry["input_tokens"] | 0) + (uint32_t)(entry["output_tokens"] | 0);
+    float cost = 0.0f;
+    if (!entry["cost"].isNull()) cost = entry["cost"].as<float>();
+    else cost = (entry["input_cost"] | 0.0f) + (entry["output_cost"] | 0.0f);
+    costOut += cost;
+  }
+  return true;
+}
+
 bool fetchUsageData(UsageData& out) {
   memset(&out, 0, sizeof(out));
   out.valid = false;
@@ -119,5 +160,27 @@ bool fetchUsageData(UsageData& out) {
     out.inputTokensToday, out.outputTokensToday, out.costToday, out.topModel);
   Serial.printf("[API] rateLimit: %u/%u reset=%s\n",
     out.rateLimitTokensRemaining, out.rateLimitTokensLimit, out.rateLimitReset);
+
+  // Fetch monthly cost
+  {
+    time_t now = (time_t)clockGetEpoch();
+    struct tm* t = localtime(&now);
+    char monthStart[12];
+    snprintf(monthStart, sizeof(monthStart), "%04d-%02d-01", 1900+t->tm_year, t->tm_mon+1);
+    uint32_t dummy;
+    fetchRangeAggregate(String(monthStart), today, dummy, out.costMonthToDate);
+  }
+
+  // Fetch weekly tokens (last 7 days)
+  {
+    time_t now = (time_t)clockGetEpoch();
+    time_t weekAgo = now - (7 * 24 * 3600);
+    struct tm* t7 = localtime(&weekAgo);
+    char weekStart[12];
+    snprintf(weekStart, sizeof(weekStart), "%04d-%02d-%02d", 1900+t7->tm_year, t7->tm_mon+1, t7->tm_mday);
+    float dummyCost;
+    fetchRangeAggregate(String(weekStart), today, out.tokensWeekly, dummyCost);
+  }
+
   return true;
 }

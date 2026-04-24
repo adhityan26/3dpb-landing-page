@@ -12,7 +12,7 @@ static void formatTokens(uint32_t t, char* buf, size_t len) {
 
 static void formatPct(uint32_t used, uint32_t limit, char* buf, size_t len) {
   if (limit == 0) snprintf(buf, len, "--%%");
-  else            snprintf(buf, len, "%u%%", (used * 100) / limit);
+  else            snprintf(buf, len, "%u%%", (uint32_t)((uint64_t)used * 100 / limit));
 }
 
 static void formatResetCountdown(const char* isoReset, char* buf, size_t len) {
@@ -103,7 +103,9 @@ void screenOverviewDraw(const UsageData& data, const String& timeStr, const Stri
 
   // 5H USED
   char pctBuf[8];
-  uint32_t used5h = data.rateLimitTokensLimit - data.rateLimitTokensRemaining;
+  uint32_t used5h = (data.rateLimitTokensRemaining <= data.rateLimitTokensLimit)
+    ? (data.rateLimitTokensLimit - data.rateLimitTokensRemaining)
+    : 0;
   formatTokens(used5h, tkBuf, sizeof(tkBuf));
   char limitBuf[10];
   formatTokens(data.rateLimitTokensLimit, limitBuf, sizeof(limitBuf));

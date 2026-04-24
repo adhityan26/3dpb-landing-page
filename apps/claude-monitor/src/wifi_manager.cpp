@@ -12,9 +12,15 @@ static const char* MONTHS[] = {"","Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu
 void wifiConnect() {
   Serial.printf("Connecting to %s", WIFI_SSID);
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
+  unsigned long start = millis();
+  while (WiFi.status() != WL_CONNECTED && millis() - start < 30000) {
     delay(500);
     Serial.print(".");
+  }
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("\nWiFi connect failed! Check credentials.");
+    // Don't halt — continue so display shows something
+    return;
   }
   Serial.printf("\nConnected! IP: %s\n", WiFi.localIP().toString().c_str());
   timeClient.begin();

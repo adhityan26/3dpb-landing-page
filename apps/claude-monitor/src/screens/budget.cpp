@@ -41,6 +41,7 @@ void screenBudgetDraw(const UsageData& data) {
   tft.fillRect(4, barY, 312, 18, tft.color565(26, 13, 0));
   tft.drawRect(4, barY, 312, 18, C_DIM);
   int fillW = (int)(pct / 100.0f * 310);
+  if (fillW > 310) fillW = 310;
   if (fillW > 0) tft.fillRect(5, barY + 1, fillW, 16, barColor);
   // Percentage inside bar
   tft.setTextColor(TFT_WHITE, barColor);

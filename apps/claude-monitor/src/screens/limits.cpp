@@ -10,6 +10,7 @@ static void drawProgressBar(int x, int y, int w, int h,
   tft.drawRect(x, y, w, h, C_DIM);
   if (total > 0) {
     int fillW = (int)((float)used / total * (w - 2));
+    if (fillW > w - 2) fillW = w - 2;
     if (fillW > 0) tft.fillRect(x + 1, y + 1, fillW, h - 2, fillColor);
   }
 }
@@ -43,7 +44,9 @@ void screenLimitsDraw(const UsageData& data) {
   tft.print(rstShort);
 
   // Progress bar
-  uint32_t used5h = data.rateLimitTokensLimit - data.rateLimitTokensRemaining;
+  uint32_t used5h = (data.rateLimitTokensRemaining <= data.rateLimitTokensLimit)
+    ? (data.rateLimitTokensLimit - data.rateLimitTokensRemaining)
+    : 0;
   drawProgressBar(10, 42, 300, 12, used5h, data.rateLimitTokensLimit, C_GREEN, tft.color565(13,26,13));
 
   // Numbers
