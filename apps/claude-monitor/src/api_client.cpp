@@ -83,6 +83,10 @@ bool fetchUsageData(UsageData& out) {
   // { "data": [ { "model": "...", "input_tokens": N, "output_tokens": N, ... } ] }
   // Aggregate all models for today's total
   JsonArray data = doc["data"].as<JsonArray>();
+  if (data.isNull()) {
+    strlcpy(out.errorMsg, "no data array in response", sizeof(out.errorMsg));
+    return false;
+  }
   uint32_t maxModelTokens = 0;
 
   for (JsonObject entry : data) {
@@ -92,8 +96,10 @@ bool fetchUsageData(UsageData& out) {
     out.outputTokensToday += out2;
 
     // Cost — field may be "input_cost" + "output_cost" or "cost"
-    float cost = entry["cost"] | 0.0f;
-    if (cost == 0.0f) {
+    float cost = 0.0f;
+    if (!entry["cost"].isNull()) {
+      cost = entry["cost"].as<float>();
+    } else {
       cost = (entry["input_cost"] | 0.0f) + (entry["output_cost"] | 0.0f);
     }
     out.costToday += cost;
