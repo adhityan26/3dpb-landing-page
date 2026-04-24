@@ -82,9 +82,12 @@ lib_deps =
   bodmer/TFT_eSPI
   bblanchon/ArduinoJson
   paulstoffregen/XPT2046_Touchscreen
+  arduino-libraries/NTPClient
 ```
 
-`WiFiClientSecure` tersedia dari ESP32 Arduino Core (built-in).
+`WiFiClientSecure` dan `WiFiUDP` tersedia dari ESP32 Arduino Core (built-in).
+
+NTP server default: `pool.ntp.org`, timezone offset dikonfigurasi di `config.h` (contoh: WIB = UTC+7 → 25200 detik).
 
 ---
 
@@ -94,6 +97,7 @@ Navigasi: tap layar mana pun → cycle ke screen berikutnya.
 
 ### Screen 0 — Overview (default)
 - Header: "⚡ CLAUDE MONITOR" + timestamp update terakhir
+- **Clock strip:** jam digital (HH:MM:SS, biru) + hari & tanggal di kanan — sinkronisasi via NTP
 - Area utama: dua kolom besar — **TOKENS HARI INI** (hijau) dan **BIAYA HARI INI** (kuning)
 - Sub-info: token input/output breakdown, month-to-date cost
 - Status bar bawah: 5H USED · 5H RESET countdown · WEEKLY %
@@ -110,6 +114,7 @@ Navigasi: tap layar mana pun → cycle ke screen berikutnya.
 - Tanggal reset billing cycle
 
 **Skema warna:**
+- Biru `#aaaaff` → jam & tanggal
 - Hijau `#00ff88` → token / rate limit
 - Kuning `#ffaa00` → biaya / budget
 - Biru `#8888ff` → weekly
