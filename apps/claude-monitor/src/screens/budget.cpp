@@ -61,7 +61,7 @@ void screenBudgetDraw(const UsageData& data) {
   int gx[] = {4, 110, 216};
   const char* labels[] = {"SISA", "RATA/HARI", "PROYEKSI"};
   float values[] = {sisa, rataHarian, proyeksi};
-  uint16_t vColors[] = {C_GREEN, C_YELLOW, (proyeksi > budget ? C_RED : C_YELLOW)};
+  uint16_t vColors[] = {C_GREEN, C_YELLOW, (uint16_t)(proyeksi > budget ? C_RED : C_YELLOW)};
 
   for (int i = 0; i < 3; i++) {
     tft.fillRect(gx[i], 124, 102, 52, bgGrid);
