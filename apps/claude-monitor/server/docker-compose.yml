@@ -1,0 +1,21 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - mosquitto_data:/mosquitto/data
+    command:
+      - sh
+      - -c
+      - |
+        echo 'listener 1883' > /mosquitto/config/mosquitto.conf
+        echo 'allow_anonymous true' >> /mosquitto/config/mosquitto.conf
+        echo 'persistence true' >> /mosquitto/config/mosquitto.conf
+        echo 'persistence_location /mosquitto/data/' >> /mosquitto/config/mosquitto.conf
+        echo 'log_dest stdout' >> /mosquitto/config/mosquitto.conf
+        mosquitto -c /mosquitto/config/mosquitto.conf
+
+volumes:
+  mosquitto_data:

@@ -22,18 +22,34 @@ bool touchTapped() {
   static bool wasPressed = false;
   static unsigned long lastTap = 0;
 
-  if (!ts.tirqTouched()) {
-    wasPressed = false;
-    return false;
-  }
+  if (!ts.tirqTouched()) { wasPressed = false; return false; }
   if (!ts.touched()) return false;
-
-  // Debounce: abaikan tap < 300ms setelah tap sebelumnya
   if (wasPressed) return false;
   if (millis() - lastTap < 300) return false;
 
   wasPressed = true;
   lastTap = millis();
-  Serial.println("Tap detected");
   return true;
+}
+
+int touchZone() {
+  static bool wasPressed = false;
+  static unsigned long lastTap = 0;
+
+  if (!ts.tirqTouched()) { wasPressed = false; return 0; }
+  if (!ts.touched()) return 0;
+  if (wasPressed) return 0;
+  if (millis() - lastTap < 300) return 0;
+
+  TS_Point p = ts.getPoint();
+  wasPressed = true;
+  lastTap = millis();
+
+  Serial.printf("[Touch] raw x=%d y=%d\n", p.x, p.y);
+
+  // Bottom strip ~40px: raw_y > 3400 (240px total, 40/240*4095 ≈ 682, bottom = 4095-682)
+  if (p.y > 3400) return 3;  // bottom strip = toggle pause
+
+  // Raw X: 0-4095 → 320px. Kiri 1/3 ≈ < 1365
+  return (p.x < 1365) ? -1 : 1;
 }

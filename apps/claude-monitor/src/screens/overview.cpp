@@ -15,47 +15,21 @@ static void formatPct(uint32_t used, uint32_t limit, char* buf, size_t len) {
   else            snprintf(buf, len, "%u%%", (uint32_t)((uint64_t)used * 100 / limit));
 }
 
-static void formatResetCountdown(const char* isoReset, char* buf, size_t len) {
-  struct tm t = {};
-  if (sscanf(isoReset, "%d-%d-%dT%d:%d:%d",
-      &t.tm_year, &t.tm_mon, &t.tm_mday,
-      &t.tm_hour, &t.tm_min, &t.tm_sec) == 6) {
-    t.tm_year -= 1900;
-    t.tm_mon  -= 1;
-    time_t resetEpoch = mktime(&t);
-    resetEpoch -= NTP_OFFSET_SEC;
-    time_t now = (time_t)clockGetEpoch();
-    long diff = (long)resetEpoch - (long)now;
-    if (diff <= 0) {
-      snprintf(buf, len, "now");
-    } else {
-      int h = diff / 3600;
-      int m = (diff % 3600) / 60;
-      snprintf(buf, len, "%dj %dm", h, m);
-    }
-  } else {
-    strlcpy(buf, isoReset, len > 16 ? 16 : len);
-  }
-}
-
 void screenOverviewDraw(const UsageData& data, const String& timeStr, const String& dateStr) {
   displayClear();
 
-  // Header
   char lastUpd[9] = "--:--";
   if (data.valid) strlcpy(lastUpd, timeStr.c_str(), sizeof(lastUpd));
   drawHeader(String(lastUpd));
 
-  // Clock strip
   drawClockStrip(timeStr, dateStr);
 
-  // ── Stats area ─────────────────────────────────────────
   uint16_t bgStats = C_BG;
 
   // Divider vertikal di tengah x=160
   tft.drawLine(160, 60, 160, 184, C_DIM);
 
-  // Kiri: TOKENS
+  // Kiri: TOKENS HARI INI
   tft.setTextColor(C_DIM, bgStats);
   tft.setTextSize(1);
   tft.setCursor(8, 64);
@@ -69,71 +43,65 @@ void screenOverviewDraw(const UsageData& data, const String& timeStr, const Stri
   tft.setCursor(8, 80);
   tft.print(tkBuf);
 
-  // Sub-info tokens
-  tft.setTextColor(C_DIM, bgStats);
-  tft.setTextSize(1);
   char inBuf[10], outBuf[10];
   formatTokens(data.inputTokensToday, inBuf, sizeof(inBuf));
   formatTokens(data.outputTokensToday, outBuf, sizeof(outBuf));
+  tft.setTextColor(C_DIM, bgStats);
+  tft.setTextSize(1);
   tft.setCursor(8, 140);
   tft.printf("in:%s out:%s", inBuf, outBuf);
 
-  // Kanan: BIAYA
+  // Kanan: CACHE HARI INI
   tft.setTextColor(C_DIM, bgStats);
   tft.setTextSize(1);
   tft.setCursor(168, 64);
-  tft.print("BIAYA HARI INI");
+  tft.print("CACHE HARI INI");
 
-  tft.setTextColor(C_YELLOW, bgStats);
+  char cBuf[10];
+  formatTokens(data.cacheReadToday, cBuf, sizeof(cBuf));
+  tft.setTextColor(tft.color565(0, 200, 255), bgStats);
   tft.setTextSize(3);
   tft.setCursor(168, 80);
-  if (data.costToday < 10.0f) tft.printf("$%.2f", data.costToday);
-  else                         tft.printf("$%.1f", data.costToday);
+  tft.print(cBuf);
 
-  // mtd
+  char cwBuf[10];
+  formatTokens(data.cacheCreationToday, cwBuf, sizeof(cwBuf));
   tft.setTextColor(C_DIM, bgStats);
   tft.setTextSize(1);
   tft.setCursor(168, 140);
-  tft.printf("mtd:$%.1f", data.costMonthToDate);
+  tft.printf("wr:%s", cwBuf);
 
   // ── Status bar ─────────────────────────────────────────
   uint16_t bgBar = tft.color565(10, 26, 10);
   tft.fillRect(0, 186, 320, 54, bgBar);
   tft.drawLine(0, 185, 319, 185, C_DIM);
 
-  // 5H USED
-  char pctBuf[8];
-  uint32_t used5h = (data.rateLimitTokensRemaining <= data.rateLimitTokensLimit)
-    ? (data.rateLimitTokensLimit - data.rateLimitTokensRemaining)
-    : 0;
-  formatTokens(used5h, tkBuf, sizeof(tkBuf));
-  char limitBuf[10];
-  formatTokens(data.rateLimitTokensLimit, limitBuf, sizeof(limitBuf));
+  // SESI
   tft.setTextColor(C_DIM, bgBar);
   tft.setTextSize(1);
   tft.setCursor(4, 192);
-  tft.print("5H USED");
+  tft.print("SESI");
   tft.setTextColor(C_GREEN, bgBar);
-  tft.setTextSize(1);
   tft.setCursor(4, 204);
-  tft.printf("%s/%s", tkBuf, limitBuf);
+  tft.printf("%u", data.sessionsToday);
 
-  // RESET
-  char rstBuf[16];
-  formatResetCountdown(data.rateLimitReset, rstBuf, sizeof(rstBuf));
+  // WEEKLY %
+  char wkPctBuf[8];
+  formatPct(data.tokensWeekly, WEEKLY_TOKEN_LIMIT, wkPctBuf, sizeof(wkPctBuf));
   tft.setTextColor(C_DIM, bgBar);
-  tft.setCursor(110, 192);
-  tft.print("RESET");
-  tft.setTextColor(C_GREEN, bgBar);
-  tft.setCursor(110, 204);
-  tft.print(rstBuf);
-
-  // WEEKLY
-  tft.setTextColor(C_DIM, bgBar);
-  tft.setCursor(222, 192);
+  tft.setCursor(100, 192);
   tft.print("WEEKLY");
   tft.setTextColor(C_BLUE_WK, bgBar);
-  tft.setCursor(222, 204);
-  formatPct(data.tokensWeekly, WEEKLY_TOKEN_LIMIT, pctBuf, sizeof(pctBuf));
-  tft.print(pctBuf);
+  tft.setCursor(100, 204);
+  tft.print(wkPctBuf);
+
+  // BULANAN %
+  char moPctBuf[8];
+  formatPct(data.tokensMonthly, MONTHLY_BUDGET_TOKENS, moPctBuf, sizeof(moPctBuf));
+  tft.setTextColor(C_DIM, bgBar);
+  tft.setCursor(200, 192);
+  tft.print("BULANAN");
+  tft.setTextColor(C_YELLOW, bgBar);
+  tft.setCursor(200, 204);
+  tft.print(moPctBuf);
 }

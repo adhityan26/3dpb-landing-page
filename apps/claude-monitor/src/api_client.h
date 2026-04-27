@@ -1,30 +1,33 @@
 #pragma once
 #include <Arduino.h>
 
+// Payload JSON dari MQTT topic claude/usage/total:
+// {
+//   "inputTokensToday": 150000,
+//   "outputTokensToday": 45000,
+//   "cacheReadToday": 2000000,
+//   "cacheCreationToday": 100000,
+//   "tokensWeekly": 500000,
+//   "tokensMonthly": 1500000,
+//   "sessionsToday": 3,
+//   "topModel": "claude-sonnet-4-6",
+//   "ts": 1777065699
+// }
+
 struct UsageData {
-  // Token hari ini (aggregate dari response)
   uint32_t inputTokensToday;
   uint32_t outputTokensToday;
-
-  // Biaya (jika tersedia di API, atau 0)
-  float costToday;
-  float costMonthToDate;
-
-  // Rate limit dari response headers
-  uint32_t rateLimitTokensLimit;
-  uint32_t rateLimitTokensRemaining;
-  char     rateLimitReset[32];  // ISO 8601 string
-
-  // Weekly — derived: total 7 hari terakhir dari data
+  uint32_t cacheReadToday;
+  uint32_t cacheCreationToday;
   uint32_t tokensWeekly;
-
-  // Top model
-  char topModel[48];
-
-  // Status
-  bool   valid;
-  char   errorMsg[64];
-  time_t fetchedAt;
+  uint32_t tokensMonthly;
+  uint32_t sessionsToday;
+  char     topModel[48];
+  bool     valid;
+  time_t   updatedAt;
 };
 
 bool fetchUsageData(UsageData& out);
+void mqttLoop(UsageData& out);
+bool mqttConnected();
+bool printersUpdated();  // true sekali setelah data printer baru tiba

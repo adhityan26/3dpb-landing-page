@@ -7,7 +7,7 @@
 #define C_YELLOW   0xFD40  // #ffaa00 biaya/budget
 #define C_BLUE_CLK 0xAD5F  // #aaaaff jam & tanggal
 #define C_BLUE_WK  0x8C5F  // #8888ff weekly
-#define C_DIM      0x2965  // dim gray teks sekunder
+#define C_DIM      0x9CD3  // medium gray teks sekunder (~RGB 156,154,152)
 #define C_RED      0xF800  // merah untuk alert
 
 extern TFT_eSPI tft;

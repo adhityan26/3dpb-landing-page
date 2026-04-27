@@ -1,2 +1,5 @@
 src/config.h
 .pio/
+server/.env
+server/mosquitto/data/
+server/mosquitto/log/
