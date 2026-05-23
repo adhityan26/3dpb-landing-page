@@ -13,14 +13,15 @@ Move production deployment dari Docker/homelab ke Cloudflare Pages, sementara st
 main branch push
   ├── GitHub Actions (existing, trimmed)
   │     └── build-studio → GHCR (unchanged)
-  │     └── build-web    → REMOVED (CF Pages handles this)
+  │     └── build-web    → REMOVED
   │
   └── Cloudflare Pages Git Integration
-        └── auto-build → CF edge network (production)
+        └── auto-build → CF edge network (PRODUCTION)
 
-homelab / staging
-  └── Docker pull dari GHCR (manual trigger atau pipeline terpisah)
-        └── adapter: @astrojs/node
+staging branch push
+  └── GitHub Actions (baru: staging.yml)
+        └── build-web Docker → GHCR (tag: staging)
+              └── developer SSH ke homelab → docker pull + docker compose up -d (manual)
 ```
 
 ## Adapter Strategy
@@ -45,9 +46,14 @@ CF Pages dashboard set `DEPLOY_TARGET=cloudflare` sebagai env var. Docker build 
 - Set `compatibility_flags = ["nodejs_compat"]` agar `@sanity/client` dan dependency Node.js-compatible lain bisa jalan di CF Workers runtime
 - Set `pages_build_output_dir = "dist"`
 
-### `.github/workflows/build-push.yml`
-- Hapus job `build-web` (CF Pages yang handle build & deploy)
-- Hapus job `detect-changes` jika tidak dipakai lagi (atau trim ke hanya studio)
+### `.github/workflows/build-push.yml` (dimodifikasi)
+- Hapus job `build-web` — CF Pages yang handle build production
+- Trim `detect-changes` untuk hanya watch `apps/studio/**`
+
+### `.github/workflows/staging.yml` (baru)
+- Trigger: push ke branch `staging`, paths `apps/web/**`
+- Build Docker image `apps/web` → push ke GHCR dengan tag `staging`
+- Deploy ke homelab: manual (developer SSH + `docker pull` + `docker compose up -d`)
 
 ## CF Pages Dashboard Setup (manual, sekali)
 
@@ -69,12 +75,19 @@ CF Pages dashboard set `DEPLOY_TARGET=cloudflare` sebagai env var. Docker build 
 
 ## Staging / Homelab
 
-Tidak berubah. Docker image tetap di-build dari Dockerfile menggunakan `@astrojs/node` adapter (karena `DEPLOY_TARGET` tidak di-set saat `docker build`).
+Push ke branch `staging` → GitHub Actions build Docker image → push ke GHCR dengan tag `staging`.
 
-Pipeline staging bisa pakai `docker-compose.yml` yang sudah ada atau pull image dari GHCR secara manual.
+Developer deploy ke homelab secara manual:
+```bash
+ssh homelab
+docker pull ghcr.io/adhityan26/3dpb-web:staging
+docker compose up -d
+```
+
+Docker build tidak set `DEPLOY_TARGET`, jadi otomatis pakai `@astrojs/node` adapter.
 
 ## Out of Scope
 
-- Custom domain setup di CF Pages (sudah ada atau dikerjakan terpisah)
-- Staging pipeline otomatis ke homelab
+- Custom domain setup di CF Pages
+- Auto-pull di homelab (watchtower)
 - Sanity Studio deployment (tidak berubah)
