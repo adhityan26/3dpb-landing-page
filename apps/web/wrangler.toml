@@ -1,4 +1,4 @@
-name = "3dpb-web"
+name = "3dpb-landing-page"
 main = "dist/_worker.js/index.js"
 compatibility_date = "2024-10-01"
 compatibility_flags = ["nodejs_compat"]
