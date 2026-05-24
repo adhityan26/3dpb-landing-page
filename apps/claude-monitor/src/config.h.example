@@ -4,6 +4,9 @@
 #define WIFI_SSID     "YourSSID"
 #define WIFI_PASSWORD "YourPassword"
 
+// Display rotation: 1=landscape (USB kanan), 3=landscape (USB kiri), 0/2=portrait
+#define DISPLAY_ROTATION 1
+
 // Timezone offset detik dari UTC (WIB = UTC+7 = 25200)
 #define NTP_OFFSET_SEC 25200
 

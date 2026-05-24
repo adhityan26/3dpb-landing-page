@@ -26,10 +26,10 @@ void screenGoldDraw(const GoldData& data) {
   tft.print(dateStr);
 
   tft.setTextColor(C_YELLOW, C_BG);
-  tft.setCursor(320 - (int)timeStr.length() * 12 - 4, 4);
+  tft.setCursor(SCREEN_W - (int)timeStr.length() * 12 - 4, 4);
   tft.print(timeStr);
 
-  tft.drawLine(0, 22, 319, 22, tft.color565(40, 40, 50));
+  tft.drawLine(0, 22, SCREEN_W-1, 22, tft.color565(40, 40, 50));
 
   if (!data.valid) {
     tft.setTextColor(C_DIM, C_BG);

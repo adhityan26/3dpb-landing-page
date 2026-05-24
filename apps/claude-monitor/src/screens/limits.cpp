@@ -31,9 +31,9 @@ void screenLimitsDraw(const UsageData& data) {
   tft.print(clockGetDate());
   String t = clockGetTime().substring(0, 5);
   tft.setTextColor(C_YELLOW, C_BG);
-  tft.setCursor(320 - (int)t.length() * 6 - 4, 4);
+  tft.setCursor(SCREEN_W - (int)t.length() * 6 - 4, 4);
   tft.print(t);
-  tft.drawLine(0, 13, 319, 13, tft.color565(30, 30, 40));
+  tft.drawLine(0, 13, SCREEN_W-1, 13, tft.color565(30, 30, 40));
 
   uint16_t bgToday = tft.color565(10, 26, 10);
   uint16_t bgWk    = tft.color565(10, 10, 26);

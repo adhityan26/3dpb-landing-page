@@ -73,8 +73,8 @@ void screenOverviewDraw(const UsageData& data, const String& timeStr, const Stri
 
   // ── Status bar ─────────────────────────────────────────
   uint16_t bgBar = tft.color565(10, 26, 10);
-  tft.fillRect(0, 186, 320, 54, bgBar);
-  tft.drawLine(0, 185, 319, 185, C_DIM);
+  tft.fillRect(0, 186, SCREEN_W, 54, bgBar);
+  tft.drawLine(0, 185, SCREEN_W-1, 185, C_DIM);
 
   // SESI
   tft.setTextColor(C_DIM, bgBar);

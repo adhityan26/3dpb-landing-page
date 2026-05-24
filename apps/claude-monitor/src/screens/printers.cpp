@@ -72,6 +72,8 @@ static uint16_t stateColor(const char* state) {
     return C_RED;
   if (strcmp(state, "FINISH") == 0)
     return tft.color565(0, 160, 255);
+  if (strcmp(state, "PAUSE") == 0 || strcmp(state, "PAUSED") == 0)
+    return C_YELLOW;
   return C_DIM;
 }
 
@@ -88,8 +90,8 @@ static void drawRow(int y, const PrinterData& p) {
   uint16_t sColor = stateColor(p.state);
   bool isRunning  = (strcmp(p.state,"RUNNING")==0 || strcmp(p.state,"PRINT")==0);
 
-  tft.fillRect(0, y, 320, ROW_H - 1, bg);
-  tft.drawLine(0, y + ROW_H - 1, 319, y + ROW_H - 1, tft.color565(30, 30, 40));
+  tft.fillRect(0, y, SCREEN_W, ROW_H - 1, bg);
+  tft.drawLine(0, y + ROW_H - 1, SCREEN_W-1, y + ROW_H - 1, tft.color565(30, 30, 40));
 
   // Name (size 2) + Type (dim, size 1 right of name)
   tft.setTextColor(TFT_WHITE, bg);
@@ -237,7 +239,7 @@ void screenPrintersRackDraw() {
   if (gPrinterCount == 0) loadDummy();
 
   if (sForceAll) tft.fillScreen(C_BG);
-  tft.fillRect(0, 0, 320, 14, C_BG);
+  tft.fillRect(0, 0, SCREEN_W, 14, C_BG);
 
   // Header: tanggal kiri (mencolok), jam kanan
   tft.setTextColor(TFT_WHITE, C_BG);
@@ -246,15 +248,15 @@ void screenPrintersRackDraw() {
   tft.print(clockGetDate());
   String t = clockGetTime().substring(0, 5);
   tft.setTextColor(C_YELLOW, C_BG);
-  tft.setCursor(320 - (int)t.length() * 6 - 4, 4);
+  tft.setCursor(SCREEN_W - (int)t.length() * 6 - 4, 4);
   tft.print(t);
-  tft.drawLine(0, 13, 319, 13, tft.color565(30, 30, 40));
+  tft.drawLine(0, 13, SCREEN_W-1, 13, tft.color565(30, 30, 40));
 
   // Watermark jika masih dummy
   if (!gPrinterDataIsReal) {
     tft.setTextColor(tft.color565(60, 0, 0), C_BG);
     tft.setTextSize(1);
-    tft.setCursor(240, 4);
+    tft.setCursor(SCREEN_W-80, 4);
     tft.print("DEMO");
   }
 
@@ -280,11 +282,11 @@ void screenPrintersRackDraw() {
 
   // Horizontal lines
   tft.drawLine(0,   TOP_Y, GAP_X-1, TOP_Y, frameColor);
-  tft.drawLine(RX,  TOP_Y, 319,     TOP_Y, frameColor);
+  tft.drawLine(RX,  TOP_Y, SCREEN_W-1, TOP_Y, frameColor);
   tft.drawLine(0,   MID_Y, GAP_X-1, MID_Y, frameColor);
-  tft.drawLine(RX,  MID_Y, 319,     MID_Y, frameColor);
+  tft.drawLine(RX,  MID_Y, SCREEN_W-1, MID_Y, frameColor);
   tft.drawLine(0,   END_Y, GAP_X-1, END_Y, frameColor);
-  tft.drawLine(RX,  END_Y, 319,     END_Y, frameColor);
+  tft.drawLine(RX,  END_Y, SCREEN_W-1, END_Y, frameColor);
 
   // Col dividers within racks
   tft.drawLine(CW,       TOP_Y, CW,       END_Y, frameColor); // kiri col divider
@@ -328,9 +330,9 @@ void screenPrintersRackDraw() {
   uint16_t ganBg    = tft.color565(12, 12, 18);
   if (namedCellChanged("Ganymede")) {
     savePrev("Ganymede");
-    tft.drawLine(0, GAN_Y-1, 319, GAN_Y-1, frameColor);
-    tft.fillRect(0, GAN_Y, 320, 240-GAN_Y, ganBg);
-    tft.fillRect(0, GAN_Y, 3, 240-GAN_Y, ganColor);
+    tft.drawLine(0, GAN_Y-1, SCREEN_W-1, GAN_Y-1, frameColor);
+    tft.fillRect(0, GAN_Y, SCREEN_W, SCREEN_H-GAN_Y, ganBg);
+    tft.fillRect(0, GAN_Y, 3, SCREEN_H-GAN_Y, ganColor);
     tft.setTextColor(TFT_WHITE, ganBg);
     tft.setTextSize(1);
     tft.setCursor(8, GAN_Y+5);
@@ -360,7 +362,7 @@ void screenPrintersRackDraw() {
 void screenPrintersOverviewDraw() {
   if (gPrinterCount == 0) loadDummy();
 
-  tft.fillRect(0, 0, 320, 14, C_BG);
+  tft.fillRect(0, 0, SCREEN_W, 14, C_BG);
 
   // Header: tanggal kiri, jam kanan
   tft.setTextColor(C_DIM, C_BG);
@@ -370,10 +372,10 @@ void screenPrintersOverviewDraw() {
 
   String t = clockGetTime().substring(0, 5);  // "HH:MM"
   tft.setTextColor(TFT_WHITE, C_BG);
-  tft.setCursor(320 - (int)t.length() * 6 - 4, 4);
+  tft.setCursor(SCREEN_W - (int)t.length() * 6 - 4, 4);
   tft.print(t);
 
-  tft.drawLine(0, 13, 319, 13, tft.color565(30, 30, 40));
+  tft.drawLine(0, 13, SCREEN_W-1, 13, tft.color565(30, 30, 40));
 
   // 2-column grid, 6 rows, row height 37px
   const int ROW_H  = 37;
@@ -429,7 +431,7 @@ void screenPrintersDraw(int page, bool paused) {
   if (page >= totalPages) page = 0;
 
   // ── Header ────────────────────────────────────────────────
-  tft.fillRect(0, 0, 320, 16, C_BG);
+  tft.fillRect(0, 0, SCREEN_W, 16, C_BG);
   tft.setTextColor(C_DIM, C_BG);
   tft.setTextSize(1);
   tft.setCursor(4, 4);
@@ -452,14 +454,14 @@ void screenPrintersDraw(int page, bool paused) {
   if (!gPrinterDataIsReal) {
     tft.setTextColor(tft.color565(60, 0, 0), C_BG);
     tft.setTextSize(1);
-    tft.setCursor(240, 5);
+    tft.setCursor(SCREEN_W-80, 5);
     tft.print("DEMO");
   }
 
   // ── Bottom strip: pause toggle ─────────────────────────────
   uint16_t btnBg = paused ? tft.color565(40, 30, 0) : tft.color565(10, 20, 10);
   uint16_t btnFg = paused ? C_YELLOW : C_GREEN;
-  tft.fillRect(0, 226, 320, 14, btnBg);
+  tft.fillRect(0, SCREEN_H-14, SCREEN_W, 14, btnBg);
   tft.setTextColor(btnFg, btnBg);
   tft.setTextSize(1);
   tft.setCursor(118, 229);
@@ -473,8 +475,8 @@ void screenPrintersDraw(int page, bool paused) {
     if (idx < gPrinterCount && gPrinters[idx].valid) {
       drawRow(rowY, gPrinters[idx]);
     } else {
-      tft.fillRect(0, rowY, 320, 69, tft.color565(8, 8, 12));
-      tft.drawLine(0, rowY + 69, 319, rowY + 69, tft.color565(20, 20, 28));
+      tft.fillRect(0, rowY, SCREEN_W, 69, tft.color565(8, 8, 12));
+      tft.drawLine(0, rowY + 69, SCREEN_W-1, rowY + 69, tft.color565(20, 20, 28));
     }
   }
 }

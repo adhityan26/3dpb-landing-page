@@ -1,5 +1,15 @@
 #pragma once
 #include <TFT_eSPI.h>
+#include "config.h"
+
+// Dimensi layar sesuai rotation
+#if (DISPLAY_ROTATION == 1 || DISPLAY_ROTATION == 3)
+  #define SCREEN_W 320
+  #define SCREEN_H 240
+#else
+  #define SCREEN_W 240
+  #define SCREEN_H 320
+#endif
 
 // Warna 16-bit RGB565
 #define C_BG       0x0841  // #0a0a0f background gelap

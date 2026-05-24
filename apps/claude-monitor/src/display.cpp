@@ -6,7 +6,7 @@ void displayInit() {
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, HIGH);
   tft.init();
-  tft.setRotation(1);  // landscape 320x240
+  tft.setRotation(DISPLAY_ROTATION);
   tft.fillScreen(C_BG);
 }
 
