@@ -117,6 +117,7 @@ Didaftarkan di **3dpb-ops Studio**, bukan `apps/studio`.
     { name: 'config',           type: 'text' },     // JSON blob — snapshot konfigurasi order
     { name: 'silhouetteImage',  type: 'image' },    // Sanity asset
     { name: 'floorInsertImage', type: 'image',  optional: true },
+    { name: 'statusNote',       type: 'text',    optional: true },  // note dari operator, ditampilkan di tracking customer
     { name: 'submittedAt',      type: 'datetime' },
   ]
 }
@@ -195,3 +196,4 @@ Flow:
 - Notifikasi BullMQ (dikerjakan di 3dpb-ops)
 - Cloudflare Turnstile CAPTCHA (bisa ditambah nanti)
 - 3dpb-ops `/api/island-check` endpoint (dikerjakan di 3dpb-ops)
+- Halaman order tracking customer (spec terpisah) — akan membaca `status` + `statusNote` dari Sanity by orderId
