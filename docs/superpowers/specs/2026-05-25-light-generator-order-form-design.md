@@ -7,6 +7,26 @@
 
 Migrate order form light generator dari `light-generator` project ke landing page 3DPB. Data order tersimpan di Sanity Cloud sehingga order tetap masuk meski homelab mati.
 
+## Order Lifecycle
+
+```
+Customer submit form
+  └─▶ Sanity (status: "submitted")  ← landing page write ke sini
+         │
+         ▼
+  3dpb-ops confirm order
+  └─▶ Copy data Sanity → local DB 3dpb-ops (untuk processing)
+         │
+         ▼
+  Setiap update status (paid / generating / ready / shipped / cancelled)
+  └─▶ 3dpb-ops write status terbaru ke Sanity
+```
+
+**Implikasi untuk landing page:**
+- Landing page hanya **write sekali** saat submit (status: `submitted`)
+- Update status adalah tanggung jawab 3dpb-ops, bukan landing page
+- Field `status` di Sanity akan diupdate oleh 3dpb-ops — schema harus support write dari dua sumber
+
 ## Architecture
 
 ```
