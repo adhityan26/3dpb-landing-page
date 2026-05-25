@@ -1,0 +1,136 @@
+---
+export const prerender = false
+
+import BaseLayout from '~/layouts/BaseLayout.astro'
+import Navbar from '~/components/Navbar.astro'
+import Footer from '~/components/Footer.astro'
+import LightGeneratorOrderForm from '~/components/LightGeneratorOrderForm'
+import { clientFromEnv, urlFor } from '~/lib/sanity'
+import { t } from '~/lib/i18n'
+import type { SiteSettings } from '~/lib/types'
+
+const client = clientFromEnv()
+const settings = await client.fetch<SiteSettings | null>(
+  `*[_type == "siteSettings"][0]{ brandName, logo, contact, seo }`
+)
+const logoUrl = settings?.logo ? urlFor(client, settings.logo).height(80).url() : undefined
+const faviconUrl = settings?.logo ? urlFor(client, settings.logo).width(64).height(64).fit('crop').format('png').url() : undefined
+const logoAlt = settings?.logo?.alt
+
+const strings = {
+  step_info:    t('en', 'light_generator.step_info'),
+  step_config:  t('en', 'light_generator.step_config'),
+  step_upload:  t('en', 'light_generator.step_upload'),
+  step_review:  t('en', 'light_generator.step_review'),
+  next:         t('en', 'light_generator.next'),
+  back:         t('en', 'light_generator.back'),
+  submit:       t('en', 'light_generator.submit'),
+  submitting:   t('en', 'light_generator.submitting'),
+  info: {
+    name_label:          t('en', 'light_generator.info.name_label'),
+    name_placeholder:    t('en', 'light_generator.info.name_placeholder'),
+    contact_label:       t('en', 'light_generator.info.contact_label'),
+    contact_placeholder: t('en', 'light_generator.info.contact_placeholder'),
+    notes_label:         t('en', 'light_generator.info.notes_label'),
+    notes_placeholder:   t('en', 'light_generator.info.notes_placeholder'),
+    notes_optional:      t('en', 'light_generator.info.notes_optional'),
+  },
+  config: {
+    size_label:     t('en', 'light_generator.config.size_label'),
+    size_s:         t('en', 'light_generator.config.size_s'),
+    size_s_desc:    t('en', 'light_generator.config.size_s_desc'),
+    size_m:         t('en', 'light_generator.config.size_m'),
+    size_m_desc:    t('en', 'light_generator.config.size_m_desc'),
+    size_l:         t('en', 'light_generator.config.size_l'),
+    size_l_desc:    t('en', 'light_generator.config.size_l_desc'),
+    shape_label:    t('en', 'light_generator.config.shape_label'),
+    shape_circle:   t('en', 'light_generator.config.shape_circle'),
+    shape_square:   t('en', 'light_generator.config.shape_square'),
+    shape_triangle: t('en', 'light_generator.config.shape_triangle'),
+    shape_rect:     t('en', 'light_generator.config.shape_rect'),
+    shape_oval:     t('en', 'light_generator.config.shape_oval'),
+    ratio_label:    t('en', 'light_generator.config.ratio_label'),
+    ratio_width:    t('en', 'light_generator.config.ratio_width'),
+    ratio_height:   t('en', 'light_generator.config.ratio_height'),
+  },
+  upload: {
+    silhouette_label:   t('en', 'light_generator.upload.silhouette_label'),
+    silhouette_tooltip: t('en', 'light_generator.upload.silhouette_tooltip'),
+    silhouette_hint:    t('en', 'light_generator.upload.silhouette_hint'),
+    silhouette_cta:     t('en', 'light_generator.upload.silhouette_cta'),
+    floor_label:        t('en', 'light_generator.upload.floor_label'),
+    floor_optional:     t('en', 'light_generator.upload.floor_optional'),
+    floor_tooltip:      t('en', 'light_generator.upload.floor_tooltip'),
+    floor_hint:         t('en', 'light_generator.upload.floor_hint'),
+    floor_cta:          t('en', 'light_generator.upload.floor_cta'),
+    shadow_title:       t('en', 'light_generator.upload.shadow_title'),
+    shadow_diameter:    t('en', 'light_generator.upload.shadow_diameter'),
+    shadow_offset_x:    t('en', 'light_generator.upload.shadow_offset_x'),
+    shadow_offset_y:    t('en', 'light_generator.upload.shadow_offset_y'),
+    preview_button:     t('en', 'light_generator.upload.preview_button'),
+    preview_loading:    t('en', 'light_generator.upload.preview_loading'),
+    preview_fallback:   t('en', 'light_generator.upload.preview_fallback'),
+    stems_label:        t('en', 'light_generator.upload.stems_label'),
+    stems_desc:         t('en', 'light_generator.upload.stems_desc'),
+    stems_detecting:    t('en', 'light_generator.upload.stems_detecting'),
+    stems_fallback:     t('en', 'light_generator.upload.stems_fallback'),
+  },
+  review: {
+    title:      t('en', 'light_generator.review.title'),
+    name:       t('en', 'light_generator.review.name'),
+    contact:    t('en', 'light_generator.review.contact'),
+    notes:      t('en', 'light_generator.review.notes'),
+    size:       t('en', 'light_generator.review.size'),
+    shape:      t('en', 'light_generator.review.shape'),
+    ratio:      t('en', 'light_generator.review.ratio'),
+    shadow:     t('en', 'light_generator.review.shadow'),
+    stems:      t('en', 'light_generator.review.stems'),
+    stems_yes:  t('en', 'light_generator.review.stems_yes'),
+    stems_no:   t('en', 'light_generator.review.stems_no'),
+    silhouette: t('en', 'light_generator.review.silhouette'),
+    floor:      t('en', 'light_generator.review.floor'),
+    floor_none: t('en', 'light_generator.review.floor_none'),
+  },
+  success: {
+    title:    t('en', 'light_generator.success.title'),
+    subtitle: t('en', 'light_generator.success.subtitle'),
+    whatsapp: t('en', 'light_generator.success.whatsapp'),
+  },
+  error: {
+    invalid_name:       t('en', 'light_generator.error.invalid_name'),
+    invalid_contact:    t('en', 'light_generator.error.invalid_contact'),
+    invalid_size:       t('en', 'light_generator.error.invalid_size'),
+    invalid_shape:      t('en', 'light_generator.error.invalid_shape'),
+    invalid_silhouette: t('en', 'light_generator.error.invalid_silhouette'),
+    file_too_large:     t('en', 'light_generator.error.file_too_large'),
+    file_invalid_type:  t('en', 'light_generator.error.file_invalid_type'),
+    generic:            t('en', 'light_generator.error.generic'),
+  },
+}
+---
+<BaseLayout locale="en" title="Order Light Generator — 3dprintingbandung"
+  description="Print a lamp with a custom light pattern from your own image."
+  canonicalPath="/en/light-generator" faviconUrl={faviconUrl}>
+  <Navbar locale="en" whatsappNumber={settings?.contact?.whatsapp} logoUrl={logoUrl} logoAlt={logoAlt} />
+  <main class="mx-auto max-w-2xl px-4 py-12">
+    <div class="mb-8">
+      <a href="/en/#generator" class="text-sm text-[color:var(--color-ink-400)] hover:text-[color:var(--color-ink-700)]">
+        {t('en', 'light_generator.back_link')}
+      </a>
+      <h1 class="mt-4 text-3xl font-display font-bold md:text-4xl">
+        {t('en', 'light_generator.title')}
+      </h1>
+      <p class="mt-2 text-[color:var(--color-ink-500)]">{t('en', 'light_generator.description')}</p>
+    </div>
+
+    <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-[color:var(--color-ink-100)] md:p-8">
+      <LightGeneratorOrderForm
+        client:load
+        strings={strings}
+        locale="en"
+        whatsappNumber={settings?.contact?.whatsapp}
+      />
+    </div>
+  </main>
+  <Footer locale="en" settings={settings} logoUrl={logoUrl} logoAlt={logoAlt} />
+</BaseLayout>
