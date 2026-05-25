@@ -153,5 +153,98 @@
   },
   "footer": {
     "rights": "Hak cipta dilindungi."
+  },
+  "light_generator": {
+    "title": "Order Light Generator",
+    "description": "Cetak lampu dengan pola cahaya custom dari gambarmu sendiri.",
+    "back_link": "← Kembali",
+    "step_info": "Info",
+    "step_config": "Konfigurasi",
+    "step_upload": "Upload",
+    "step_review": "Review",
+    "next": "Lanjut →",
+    "back": "← Kembali",
+    "submit": "Kirim Order",
+    "submitting": "Mengirim…",
+    "info": {
+      "name_label": "Nama lengkap",
+      "name_placeholder": "Nama kamu",
+      "contact_label": "WhatsApp / Instagram",
+      "contact_placeholder": "08xx / @username",
+      "notes_label": "Catatan",
+      "notes_placeholder": "Informasi tambahan (opsional)",
+      "notes_optional": "(opsional)"
+    },
+    "config": {
+      "size_label": "Ukuran",
+      "size_s": "S",
+      "size_s_desc": "Ø 10 cm",
+      "size_m": "M",
+      "size_m_desc": "Ø 14 cm",
+      "size_l": "L",
+      "size_l_desc": "Ø 20 cm",
+      "shape_label": "Bentuk",
+      "shape_circle": "Bulat",
+      "shape_square": "Kotak",
+      "shape_triangle": "Segitiga",
+      "shape_rect": "Persegi",
+      "shape_oval": "Oval",
+      "ratio_label": "Rasio (Lebar × Tinggi)",
+      "ratio_width": "Lebar",
+      "ratio_height": "Tinggi"
+    },
+    "upload": {
+      "silhouette_label": "Gambar Desain",
+      "silhouette_tooltip": "Gambar yang akan dijadikan pola cahaya oleh lampu. Contoh: logo, siluet hewan, karakter. Tips: gunakan gambar high-contrast (hitam putih) untuk hasil terbaik.",
+      "silhouette_hint": "PNG, JPG, atau WebP · Maks. 5 MB",
+      "silhouette_cta": "Klik atau drop gambar di sini",
+      "floor_label": "Gambar Alas",
+      "floor_optional": "(opsional)",
+      "floor_tooltip": "Gambar yang dicetak pada alas lampu — bagian bawah yang kelihatan dari atas. Contoh: nama, tanggal, motif. Kalau tidak diisi, alas akan polos.",
+      "floor_hint": "PNG, JPG, atau WebP · Maks. 5 MB",
+      "floor_cta": "Klik atau drop gambar di sini",
+      "shadow_title": "Konfigurasi Shadow",
+      "shadow_diameter": "Diameter (cm)",
+      "shadow_offset_x": "Offset X (mm)",
+      "shadow_offset_y": "Offset Y (mm)",
+      "preview_button": "Lihat Preview Shadow",
+      "preview_loading": "Memuat preview…",
+      "preview_fallback": "Preview render tidak tersedia, gunakan canvas di atas sebagai referensi.",
+      "stems_label": "Support Stems",
+      "stems_desc": "Dibutuhkan jika ada bagian yang terpisah",
+      "stems_detecting": "Mendeteksi…",
+      "stems_fallback": "Deteksi otomatis tidak tersedia. Aktifkan manual jika gambar punya bagian yang terpisah-pisah."
+    },
+    "review": {
+      "title": "Ringkasan Order",
+      "name": "Nama",
+      "contact": "Kontak",
+      "notes": "Catatan",
+      "size": "Ukuran",
+      "shape": "Bentuk",
+      "ratio": "Rasio",
+      "shadow": "Shadow",
+      "stems": "Support Stems",
+      "stems_yes": "Ya",
+      "stems_no": "Tidak",
+      "silhouette": "Gambar Desain",
+      "floor": "Gambar Alas",
+      "floor_none": "—"
+    },
+    "success": {
+      "title": "Order Terkirim!",
+      "subtitle": "Order ID kamu:",
+      "whatsapp": "Konfirmasi via WhatsApp"
+    },
+    "error": {
+      "invalid_name": "Nama harus diisi (2–100 karakter).",
+      "invalid_contact": "Kontak harus diisi (5–100 karakter).",
+      "invalid_size": "Pilih ukuran terlebih dahulu.",
+      "invalid_shape": "Pilih bentuk terlebih dahulu.",
+      "invalid_silhouette": "Upload gambar desain terlebih dahulu.",
+      "file_too_large": "Ukuran file maksimal 5 MB.",
+      "file_invalid_type": "Format file harus PNG, JPG, atau WebP.",
+      "generic": "Terjadi kesalahan. Coba lagi sebentar."
+    }
   }
 }

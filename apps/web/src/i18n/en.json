@@ -153,5 +153,98 @@
   },
   "footer": {
     "rights": "All rights reserved."
+  },
+  "light_generator": {
+    "title": "Order Light Generator",
+    "description": "Print a lamp with a custom light pattern from your own image.",
+    "back_link": "← Back",
+    "step_info": "Info",
+    "step_config": "Config",
+    "step_upload": "Upload",
+    "step_review": "Review",
+    "next": "Next →",
+    "back": "← Back",
+    "submit": "Submit Order",
+    "submitting": "Submitting…",
+    "info": {
+      "name_label": "Full name",
+      "name_placeholder": "Your name",
+      "contact_label": "WhatsApp / Instagram",
+      "contact_placeholder": "08xx / @username",
+      "notes_label": "Notes",
+      "notes_placeholder": "Additional info (optional)",
+      "notes_optional": "(optional)"
+    },
+    "config": {
+      "size_label": "Size",
+      "size_s": "S",
+      "size_s_desc": "Ø 10 cm",
+      "size_m": "M",
+      "size_m_desc": "Ø 14 cm",
+      "size_l": "L",
+      "size_l_desc": "Ø 20 cm",
+      "shape_label": "Shape",
+      "shape_circle": "Circle",
+      "shape_square": "Square",
+      "shape_triangle": "Triangle",
+      "shape_rect": "Rectangle",
+      "shape_oval": "Oval",
+      "ratio_label": "Ratio (Width × Height)",
+      "ratio_width": "Width",
+      "ratio_height": "Height"
+    },
+    "upload": {
+      "silhouette_label": "Design Image",
+      "silhouette_tooltip": "The image that becomes the light pattern. Examples: logo, animal silhouette, character. Tip: use high-contrast (black & white) images for best results.",
+      "silhouette_hint": "PNG, JPG, or WebP · Max 5 MB",
+      "silhouette_cta": "Click or drop image here",
+      "floor_label": "Base Image",
+      "floor_optional": "(optional)",
+      "floor_tooltip": "Image printed on the lamp base — visible from above. Examples: name, special date, pattern. Leave blank for a plain base.",
+      "floor_hint": "PNG, JPG, or WebP · Max 5 MB",
+      "floor_cta": "Click or drop image here",
+      "shadow_title": "Shadow Config",
+      "shadow_diameter": "Diameter (cm)",
+      "shadow_offset_x": "Offset X (mm)",
+      "shadow_offset_y": "Offset Y (mm)",
+      "preview_button": "View Shadow Preview",
+      "preview_loading": "Loading preview…",
+      "preview_fallback": "Preview render unavailable. Use the canvas above as a reference.",
+      "stems_label": "Support Stems",
+      "stems_desc": "Required if the design has disconnected parts",
+      "stems_detecting": "Detecting…",
+      "stems_fallback": "Auto-detection unavailable. Enable manually if your design has floating disconnected parts."
+    },
+    "review": {
+      "title": "Order Summary",
+      "name": "Name",
+      "contact": "Contact",
+      "notes": "Notes",
+      "size": "Size",
+      "shape": "Shape",
+      "ratio": "Ratio",
+      "shadow": "Shadow",
+      "stems": "Support Stems",
+      "stems_yes": "Yes",
+      "stems_no": "No",
+      "silhouette": "Design Image",
+      "floor": "Base Image",
+      "floor_none": "—"
+    },
+    "success": {
+      "title": "Order Submitted!",
+      "subtitle": "Your Order ID:",
+      "whatsapp": "Confirm via WhatsApp"
+    },
+    "error": {
+      "invalid_name": "Name is required (2–100 characters).",
+      "invalid_contact": "Contact is required (5–100 characters).",
+      "invalid_size": "Please select a size.",
+      "invalid_shape": "Please select a shape.",
+      "invalid_silhouette": "Please upload a design image.",
+      "file_too_large": "File size must be 5 MB or less.",
+      "file_invalid_type": "File must be PNG, JPG, or WebP.",
+      "generic": "Something went wrong. Please try again."
+    }
   }
 }
