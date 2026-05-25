@@ -36,7 +36,7 @@ try {
 const homePath = `/${locale}/`
 const generatorHref = isHome
   ? '#generator'
-  : generatorExternalUrl ?? `${homePath}#generator`
+  : `/${locale}/light-generator`
 const galleryHref = isHome ? '#gallery' : `${homePath}#gallery`
 // Footer is on every page and has id="contact"
 const contactHref = '#contact'
