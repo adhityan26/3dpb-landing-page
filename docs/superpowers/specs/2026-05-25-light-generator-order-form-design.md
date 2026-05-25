@@ -19,13 +19,13 @@ Customer submit form
          │
          ▼
   Setiap update status (paid / generating / ready / shipped / cancelled)
-  └─▶ 3dpb-ops write status terbaru ke Sanity
+  └─▶ 3dpb-ops write status terbaru + statusNote ke Sanity
 ```
 
 **Implikasi untuk landing page:**
 - Landing page hanya **write sekali** saat submit (status: `submitted`)
-- Update status adalah tanggung jawab 3dpb-ops, bukan landing page
-- Field `status` di Sanity akan diupdate oleh 3dpb-ops — schema harus support write dari dua sumber
+- Update status dan statusNote adalah tanggung jawab 3dpb-ops
+- Field `status` di Sanity akan diupdate oleh 3dpb-ops — schema support write dari dua sumber
 
 ## Architecture
 
@@ -35,13 +35,17 @@ Customer submit form
 
   LightGeneratorOrderForm.tsx  (React, client-side wizard)
     Step 1: Info Customer
-    Step 2: Konfigurasi (ukuran, bentuk, shadow, support stems)
-    Step 3: Upload (silhouette required, floor insert optional)
+    Step 2: Ukuran & Bentuk
+    Step 3: Upload + Shadow Config + Preview
     Step 4: Review & Submit
 
   /api/light-generator-island-check  (CF Worker, POST)
-    → Proxy ke 3dpb-ops API dengan shared secret
-    → Fallback manual toggle jika 3dpb-ops unavailable
+    → Proxy ke 3dpb-ops dengan shared secret
+    → Fallback: { fallback: true } jika unavailable
+
+  /api/light-generator-shadow-preview  (CF Worker, POST)
+    → Proxy ke 3dpb-ops dengan shared secret
+    → Fallback: canvas configurator saja jika unavailable
 
   /api/light-generator-order  (CF Worker, POST, multipart FormData)
     → Validate (Zod)
@@ -64,34 +68,53 @@ Layout dan style mengikuti `StravaMapOrderForm.tsx` — `var(--color-brand-*)`, 
 | WhatsApp / Instagram | text | 5–100 karakter, required |
 | Catatan | textarea | opsional, maks 500 karakter |
 
-### Step 2: Konfigurasi
+### Step 2: Ukuran & Bentuk
 | Field | Type | Validasi |
 |-------|------|----------|
 | Ukuran | radio card: S / M / L | required (S=Ø10cm, M=Ø14cm, L=Ø20cm) |
 | Bentuk | radio card: circle / square / triangle / rect / oval | required |
 | Rasio bentuk | number W + H | hanya muncul jika shape = rect atau oval |
-| Shadow diameter | number (cm) | 10–200, default 15 |
-| Shadow offset X | number (mm) | -500 – +500, default 0 |
-| Shadow offset Y | number (mm) | -500 – +500, default 0 |
-### Step 3: Upload Gambar
 
-**Gambar Desain** (required)
+### Step 3: Upload + Shadow Config + Preview
+
+Urutan komponen dalam step ini:
+
+**1. Gambar Desain** (required)
 - Label: "Gambar Desain *"
 - Tooltip: Gambar yang akan dijadikan pola cahaya lampu. Contoh: logo, siluet hewan, karakter, desain custom. Tips: gunakan gambar high-contrast (hitam putih) untuk hasil terbaik.
 - Format: PNG / JPG / WebP, maks 5 MB
+- Drag-and-drop + click-to-browse, thumbnail preview setelah dipilih
 
-**Gambar Alas** (optional)
+**2. Canvas Configurator** (muncul setelah silhouette dipilih)
+- Render outline casing di atas gambar silhouette menggunakan HTML5 Canvas
+- Menampilkan posisi dan ukuran footprint lampu relatif terhadap gambar
+- Pure client-side, tidak butuh backend
+- Di-port dari `casing-configurator.tsx` di light-generator
+
+**3. Shadow Config** (di bawah canvas)
+| Field | Type | Validasi |
+|-------|------|----------|
+| Shadow diameter | number (cm) | 10–200, default 15 |
+| Shadow offset X | number (mm) | -500 – +500, default 0 |
+| Shadow offset Y | number (mm) | -500 – +500, default 0 |
+
+Perubahan pada shadow config langsung update canvas configurator secara real-time.
+
+**4. Rendered Shadow Preview** (tombol opsional)
+- Tombol "Lihat Preview Shadow" → call `/api/light-generator-shadow-preview`
+- Jika 3dpb-ops available → tampil rendered preview image dari Python microservice
+- Jika fallback → tampil pesan "preview render tidak tersedia, gunakan canvas di atas sebagai referensi"
+
+**5. Support Stems**
+- Toggle default OFF
+- Setelah silhouette dipilih, otomatis call `/api/light-generator-island-check`
+  - Jika available → toggle auto-set sesuai hasil, user bisa override
+  - Jika fallback → hint "deteksi otomatis tidak tersedia, aktifkan manual jika gambar punya bagian yang terpisah-pisah"
+
+**6. Gambar Alas** (optional)
 - Label: "Gambar Alas (opsional)"
 - Tooltip: Gambar yang dicetak pada alas/lantai lampu — bagian bawah yang kelihatan dari atas. Contoh: nama, tanggal spesial, motif. Kalau tidak diisi, alas akan polos.
 - Format: PNG / JPG / WebP, maks 5 MB
-
-Kedua field pakai drag-and-drop + click-to-browse. Preview thumbnail setelah file dipilih.
-
-**Support Stems** (di bawah upload silhouette, setelah file dipilih)
-- Toggle default OFF
-- Setelah silhouette dipilih, otomatis call `/api/light-generator-island-check`
-  - Jika 3dpb-ops available → toggle auto-set sesuai hasil, user bisa override
-  - Jika fallback → tampil hint "deteksi otomatis tidak tersedia, aktifkan manual jika gambar punya bagian yang terpisah-pisah"
 
 ### Step 4: Review & Submit
 
@@ -117,7 +140,7 @@ Didaftarkan di **3dpb-ops Studio**, bukan `apps/studio`.
     { name: 'config',           type: 'text' },     // JSON blob — snapshot konfigurasi order
     { name: 'silhouetteImage',  type: 'image' },    // Sanity asset
     { name: 'floorInsertImage', type: 'image',  optional: true },
-    { name: 'statusNote',       type: 'text',    optional: true },  // note dari operator, ditampilkan di tracking customer
+    { name: 'statusNote',       type: 'text',    optional: true },  // note operator → ditampilkan di tracking customer
     { name: 'submittedAt',      type: 'datetime' },
   ]
 }
@@ -151,7 +174,7 @@ Flow:
 1. Validate dengan Zod (server-side)
 2. Upload `silhouette` → Sanity Assets via `client.assets.upload('image', file)`
 3. Upload `floorInsert` jika ada → Sanity Assets
-4. Generate `orderId = "LG-" + YYYYMMDD + "-" + random(4 uppercase)`
+4. Generate `orderId = "LG-" + YYYYMMDD + "-" + random(4 chars A-Z0-9)`
 5. `client.create({ _type: 'lightGeneratorOrder', orderId, status: 'submitted', ... })`
 6. Return `201 { orderId }`
 
@@ -161,7 +184,7 @@ Error responses:
 
 ### `POST /api/light-generator-island-check`
 
-Input: `{ imageAssetId: string }` — Sanity asset ID dari silhouette yang sudah diupload
+Input: `{ imageAssetId: string }` — Sanity asset ID silhouette
 
 Flow:
 1. Call `https://<3dpb-ops-url>/api/island-check` dengan header `Authorization: Bearer OPS_API_SECRET`
@@ -169,12 +192,23 @@ Flow:
 3. Success → return `{ hasFloatingIslands: boolean }`
 4. Timeout / error → return `{ hasFloatingIslands: null, fallback: true }`
 
+### `POST /api/light-generator-shadow-preview`
+
+Input: `{ imageAssetId: string, config: ShadowConfig }`
+
+Flow:
+1. Call `https://<3dpb-ops-url>/api/shadow-preview` dengan header `Authorization: Bearer OPS_API_SECRET`
+2. Timeout: 15 detik (render bisa lebih lama)
+3. Success → return `{ previewUrl: string }` — URL gambar hasil render
+4. Timeout / error → return `{ fallback: true }`
+
 ## Environment Variables
 
 | Variable | Keterangan |
 |----------|-----------|
 | `SANITY_WRITE_TOKEN` | Sudah ada, dipakai juga oleh waitlist API |
 | `OPS_API_SECRET` | Shared secret untuk komunikasi ke 3dpb-ops (baru) |
+| `OPS_API_URL` | Base URL 3dpb-ops (baru) |
 
 ## Files
 
@@ -184,7 +218,9 @@ Flow:
 | `src/pages/en/light-generator.astro` | Create |
 | `src/pages/api/light-generator-order.ts` | Create |
 | `src/pages/api/light-generator-island-check.ts` | Create |
+| `src/pages/api/light-generator-shadow-preview.ts` | Create |
 | `src/components/LightGeneratorOrderForm.tsx` | Create |
+| `src/components/LightGeneratorCasingCanvas.tsx` | Create — canvas configurator, di-port dari light-generator |
 | `src/i18n/id.json` | Modify — tambah strings light generator |
 | `src/i18n/en.json` | Modify — tambah strings light generator |
 
@@ -195,5 +231,5 @@ Flow:
 - STL generation
 - Notifikasi BullMQ (dikerjakan di 3dpb-ops)
 - Cloudflare Turnstile CAPTCHA (bisa ditambah nanti)
-- 3dpb-ops `/api/island-check` endpoint (dikerjakan di 3dpb-ops)
-- Halaman order tracking customer (spec terpisah) — akan membaca `status` + `statusNote` dari Sanity by orderId
+- 3dpb-ops `/api/island-check` dan `/api/shadow-preview` endpoints (dikerjakan di 3dpb-ops)
+- Halaman order tracking customer (spec terpisah) — membaca `status` + `statusNote` dari Sanity by orderId
