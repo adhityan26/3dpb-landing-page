@@ -157,7 +157,7 @@ Struktur `config` JSON:
 }
 ```
 
-## API Routes
+## API Routes — Landing Page (apps/web)
 
 ### `POST /api/light-generator-order`
 
@@ -171,7 +171,7 @@ silhouette (File), floorInsert? (File)
 ```
 
 Flow:
-1. Validate dengan Zod (server-side)
+1. Validate server-side (manual, tanpa Zod)
 2. Upload `silhouette` → Sanity Assets via `client.assets.upload('image', file)`
 3. Upload `floorInsert` jika ada → Sanity Assets
 4. Generate `orderId = "LG-" + YYYYMMDD + "-" + random(4 chars A-Z0-9)`
@@ -187,7 +187,7 @@ Error responses:
 Input: `{ imageAssetId: string }` — Sanity asset ID silhouette
 
 Flow:
-1. Call `https://<3dpb-ops-url>/api/island-check` dengan header `Authorization: Bearer OPS_API_SECRET`
+1. Call `https://<OPS_API_URL>/api/island-check` dengan header `Authorization: Bearer OPS_API_SECRET`
 2. Timeout: 5 detik
 3. Success → return `{ hasFloatingIslands: boolean }`
 4. Timeout / error → return `{ hasFloatingIslands: null, fallback: true }`
@@ -196,19 +196,213 @@ Flow:
 
 Input: `{ imageAssetId: string, config: ShadowConfig }`
 
+```ts
+interface ShadowConfig {
+  diameter: number   // cm, 10–200
+  offsetX: number    // mm, -500 – +500
+  offsetY: number    // mm, -500 – +500
+}
+```
+
 Flow:
-1. Call `https://<3dpb-ops-url>/api/shadow-preview` dengan header `Authorization: Bearer OPS_API_SECRET`
+1. Call `https://<OPS_API_URL>/api/shadow-preview` dengan header `Authorization: Bearer OPS_API_SECRET`
 2. Timeout: 15 detik (render bisa lebih lama)
-3. Success → return `{ previewUrl: string }` — URL gambar hasil render
+3. Success → return `{ previewUrl: string }` — presigned URL ke gambar hasil render
 4. Timeout / error → return `{ fallback: true }`
 
+---
+
+## 3dpb-ops API Contract
+
+> **Bagian ini adalah spesifikasi yang HARUS diimplementasi oleh 3dpb-ops.**
+> Landing page akan call endpoint-endpoint ini. Spec ini adalah source of truth.
+
+### Auth
+
+Semua endpoint berikut **tidak dilindungi dashboard auth** (public), tapi wajib memeriksa header:
+
+```
+Authorization: Bearer <OPS_API_SECRET>
+```
+
+Jika header tidak ada atau salah → return `401 { error: 'unauthorized' }`.
+
+`OPS_API_SECRET` adalah shared secret yang sama antara landing page dan 3dpb-ops — generate dengan `openssl rand -hex 32`, disimpan di kedua env.
+
+---
+
+### `POST /api/island-check`
+
+Digunakan landing page untuk deteksi otomatis apakah silhouette punya bagian yang floating (terpisah-pisah). Jika ada → support stems diperlukan.
+
+**Request:**
+```json
+{
+  "imageAssetId": "image-abc123defg"
+}
+```
+
+`imageAssetId` adalah Sanity asset ID (`_id` dari asset yang diupload). 3dpb-ops perlu download image dari Sanity CDN menggunakan URL format:
+```
+https://cdn.sanity.io/images/<projectId>/<dataset>/<assetId_tanpa_prefix_image->
+```
+
+Contoh: asset `image-abc123-800x600-png` → URL `https://cdn.sanity.io/images/<projectId>/production/abc123-800x600.png`
+
+**Response sukses (`200`):**
+```json
+{ "hasFloatingIslands": true }
+```
+atau
+```json
+{ "hasFloatingIslands": false }
+```
+
+**Response error (`200`, bukan 4xx/5xx — landing page pakai ini sebagai fallback):**
+```json
+{ "hasFloatingIslands": null, "fallback": true }
+```
+
+**Timeout landing page:** 5 detik. Jika 3dpb-ops tidak respond dalam 5 detik, landing page otomatis masuk fallback mode (manual toggle).
+
+---
+
+### `POST /api/shadow-preview`
+
+Digunakan landing page untuk render preview shadow sebelum submit order. 3dpb-ops call Python STL service untuk generate preview image.
+
+**Request:**
+```json
+{
+  "imageAssetId": "image-abc123defg",
+  "config": {
+    "diameter": 15,
+    "offsetX": 0,
+    "offsetY": 0
+  }
+}
+```
+
+`config.diameter` dalam cm, `config.offsetX` dan `config.offsetY` dalam mm.
+
+**Response sukses (`200`):**
+```json
+{ "previewUrl": "https://minio.example.com/lamp-orders/preview/abc123.png?X-Amz-Expires=900&..." }
+```
+
+`previewUrl` adalah presigned URL (MinIO atau storage lain) yang valid minimal 15 menit. Landing page akan langsung render `<img src={previewUrl}>` di browser — tidak ada proxying.
+
+**Response error (`200`):**
+```json
+{ "fallback": true }
+```
+
+Landing page menampilkan pesan fallback jika menerima ini atau jika timeout (15 detik).
+
+---
+
+### Sanity Schema — `lightGeneratorOrder`
+
+> Schema ini di-register di **3dpb-ops Sanity Studio**. Landing page hanya write field-field berikut saat submit. 3dpb-ops write `status` dan `statusNote` untuk status updates.
+
+```ts
+{
+  name: 'lightGeneratorOrder',
+  fields: [
+    // === Ditulis oleh landing page saat submit ===
+    { name: 'orderId',          type: 'string' },
+    // Format: "LG-YYYYMMDD-XXXX", contoh: "LG-20260525-A3F7"
+
+    { name: 'status',           type: 'string' },
+    // Nilai: 'submitted' | 'paid' | 'generating' | 'ready' | 'shipped' | 'cancelled'
+    // Landing page set ke 'submitted'. 3dpb-ops update nilai ini.
+
+    { name: 'customerName',     type: 'string' },
+    { name: 'customerContact',  type: 'string' },
+    { name: 'customerNotes',    type: 'text',    optional: true },
+
+    { name: 'config',           type: 'text' },
+    // JSON blob — snapshot konfigurasi order
+    // Struktur: lihat "Struktur config JSON" di bawah
+
+    { name: 'silhouetteImage',  type: 'image' },
+    // Sanity image asset — wajib
+
+    { name: 'floorInsertImage', type: 'image',   optional: true },
+    // Sanity image asset — opsional
+
+    { name: 'submittedAt',      type: 'datetime' },
+
+    // === Ditulis oleh 3dpb-ops saja ===
+    { name: 'statusNote',       type: 'text',    optional: true },
+    // Pesan operator → ditampilkan ke customer di halaman tracking
+  ]
+}
+```
+
+**Struktur `config` JSON (ditulis oleh landing page, dibaca oleh 3dpb-ops):**
+```json
+{
+  "size": "M",
+  "shape": "rect",
+  "shapeRatio": { "width": 3, "height": 2 },
+  "shadow": {
+    "diameter": 15,
+    "offsetX": 0,
+    "offsetY": 0
+  },
+  "supportStems": true
+}
+```
+
+- `size`: `"S"` | `"M"` | `"L"` — S=Ø10cm, M=Ø14cm, L=Ø20cm
+- `shape`: `"circle"` | `"square"` | `"triangle"` | `"rect"` | `"oval"`
+- `shapeRatio`: hanya ada jika `shape` adalah `"rect"` atau `"oval"`, `null` atau tidak ada untuk shape lain
+- `shadow.diameter`: cm (10–200)
+- `shadow.offsetX`, `shadow.offsetY`: mm (-500 – +500)
+- `supportStems`: boolean
+
+**Note untuk 3dpb-ops:** `config` adalah satu field `text` berisi JSON string. Saat membaca, parse dengan `JSON.parse(order.config)`. Jangan expect field individual `size`, `shape`, dst. langsung di root Sanity document.
+
+---
+
+### Status Update ke Sanity (oleh 3dpb-ops)
+
+Setiap kali status order berubah, 3dpb-ops wajib write balik ke Sanity:
+
+```ts
+await sanityWriteClient
+  .patch(sanityDocId)
+  .set({
+    status: newStatus,        // string
+    statusNote: noteText,     // string | undefined
+  })
+  .commit()
+```
+
+`sanityDocId` adalah `_id` Sanity document — disimpan di local DB saat confirm (agar tidak perlu GROQ lookup setiap update).
+
+---
+
 ## Environment Variables
+
+### Landing page (`apps/web`)
 
 | Variable | Keterangan |
 |----------|-----------|
 | `SANITY_WRITE_TOKEN` | Sudah ada, dipakai juga oleh waitlist API |
-| `OPS_API_SECRET` | Shared secret untuk komunikasi ke 3dpb-ops (baru) |
-| `OPS_API_URL` | Base URL 3dpb-ops (baru) |
+| `OPS_API_SECRET` | Shared secret — sama persis dengan yang di 3dpb-ops |
+| `OPS_API_URL` | Base URL 3dpb-ops, contoh: `https://ops.3dprintingbandung.my.id` |
+
+### 3dpb-ops (tambahan)
+
+| Variable | Keterangan |
+|----------|-----------|
+| `OPS_API_SECRET` | Shared secret — sama persis dengan yang di landing page |
+| `PUBLIC_SANITY_PROJECT_ID` | Untuk download image dari Sanity CDN |
+| `PUBLIC_SANITY_DATASET` | Default: `production` |
+
+---
 
 ## Files
 
@@ -229,7 +423,6 @@ Flow:
 - Sanity Studio schema (dikerjakan di 3dpb-ops)
 - Payment flow
 - STL generation
-- Notifikasi BullMQ (dikerjakan di 3dpb-ops)
+- Notifikasi (dikerjakan di 3dpb-ops)
 - Cloudflare Turnstile CAPTCHA (bisa ditambah nanti)
-- 3dpb-ops `/api/island-check` dan `/api/shadow-preview` endpoints (dikerjakan di 3dpb-ops)
 - Halaman order tracking customer (spec terpisah) — membaca `status` + `statusNote` dari Sanity by orderId
