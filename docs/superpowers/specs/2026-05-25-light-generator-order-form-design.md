@@ -207,8 +207,19 @@ interface ShadowConfig {
 Flow:
 1. Call `https://<OPS_API_URL>/api/shadow-preview` dengan header `Authorization: Bearer OPS_API_SECRET`
 2. Timeout: 15 detik (render bisa lebih lama)
-3. Success → return `{ previewUrl: string }` — presigned URL ke gambar hasil render
-4. Timeout / error → return `{ fallback: true }`
+3. Success → ops return raw PNG bytes (`Content-Type: image/png`) → proxy forward response bytes ke browser
+4. Timeout / error → return `{ fallback: true }` (JSON)
+
+Landing page form component membuat blob URL dari response bytes:
+```ts
+const res = await fetch('/api/light-generator-shadow-preview', { ... })
+if (res.ok && res.headers.get('content-type')?.includes('image/png')) {
+  const blob = await res.blob()
+  setPreviewUrl(URL.createObjectURL(blob))
+} else {
+  setPreviewFallback(true)
+}
+```
 
 ---
 
@@ -286,18 +297,18 @@ Digunakan landing page untuk render preview shadow sebelum submit order. 3dpb-op
 `config.diameter` dalam cm, `config.offsetX` dan `config.offsetY` dalam mm.
 
 **Response sukses (`200`):**
-```json
-{ "previewUrl": "https://minio.example.com/lamp-orders/preview/abc123.png?X-Amz-Expires=900&..." }
+```
+Content-Type: image/png
+[raw PNG bytes]
 ```
 
-`previewUrl` adalah presigned URL (MinIO atau storage lain) yang valid minimal 15 menit. Landing page akan langsung render `<img src={previewUrl}>` di browser — tidak ada proxying.
+3dpb-ops mengembalikan PNG bytes langsung — **bukan JSON, bukan URL**. MinIO hanya digunakan secara internal di 3dpb-ops (tidak diekspos publik). Landing page proxy mem-forward bytes ini ke browser, lalu form component membuat blob URL untuk ditampilkan.
 
-**Response error (`200`):**
-```json
-{ "fallback": true }
-```
+**Response error (`5xx` atau timeout):**
 
-Landing page menampilkan pesan fallback jika menerima ini atau jika timeout (15 detik).
+Return HTTP error status (mis. `500`) atau tidak respond dalam 15 detik. Landing page proxy menangkap ini dan return `{ fallback: true }` ke form.
+
+Landing page menampilkan pesan fallback jika menerima fallback atau jika timeout (15 detik).
 
 ---
 
