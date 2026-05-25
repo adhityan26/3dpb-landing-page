@@ -94,17 +94,22 @@ Didaftarkan di **3dpb-ops Studio**, bukan `apps/studio`.
     { name: 'customerName',     type: 'string' },
     { name: 'customerContact',  type: 'string' },
     { name: 'customerNotes',    type: 'text',    optional: true },
-    { name: 'size',             type: 'string' },   // S|M|L
-    { name: 'shape',            type: 'string' },   // circle|square|triangle|rect|oval
-    { name: 'shapeRatio',       type: 'object', optional: true },  // { width, height }
-    { name: 'shadowDiameter',   type: 'number' },
-    { name: 'shadowOffsetX',    type: 'number' },
-    { name: 'shadowOffsetY',    type: 'number' },
-    { name: 'supportStems',     type: 'boolean' },
+    { name: 'config',           type: 'text' },     // JSON blob — snapshot konfigurasi order
     { name: 'silhouetteImage',  type: 'image' },    // Sanity asset
     { name: 'floorInsertImage', type: 'image',  optional: true },
     { name: 'submittedAt',      type: 'datetime' },
   ]
+}
+```
+
+Struktur `config` JSON:
+```json
+{
+  "size": "M",
+  "shape": "rect",
+  "shapeRatio": { "width": 3, "height": 2 },
+  "shadow": { "diameter": 15, "offsetX": 0, "offsetY": 0 },
+  "supportStems": true
 }
 ```
 
